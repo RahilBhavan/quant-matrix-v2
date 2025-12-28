@@ -1,110 +1,231 @@
 /**
  * DeFi Protocol Constants
  */
-export * from './src/constants/defi-blocks';
-
-// LEGACY STOCK CONSTANTS BELOW - Will be removed
-
-/**
- * LEGACY STOCK TRADING CONSTANTS
- * TODO: Replace with DeFi protocol blocks in Phase 4
- *
- * Current blocks are placeholders from stock trading platform.
- * Will be replaced with: UNISWAP_SWAP, AAVE_SUPPLY, CREATE_LP_POSITION, etc.
- */
 
 import { LegoBlock, Protocol } from './types';
 
+// Protocol Colors
+export const PROTOCOL_COLORS = {
+  [Protocol.UNISWAP]: '#FF007A',  // Uniswap Pink
+  [Protocol.AAVE]: '#B6509E',      // Aave Purple
+  [Protocol.COMPOUND]: '#00D395',  // Compound Green
+  [Protocol.LOGIC]: '#FFD93D',     // Yellow
+  [Protocol.RISK]: '#6C63FF',      // Blue-Purple
+} as const;
+
+// DeFi Protocol Blocks
 export const AVAILABLE_BLOCKS: Omit<LegoBlock, 'id'>[] = [
+  // ===== UNISWAP DEX BLOCKS =====
   {
-    type: 'MARKET_BUY',
-    protocol: Protocol.ENTRY,
-    label: 'MARKET_BUY',
-    description: 'Buy at current market price',
-    color: '#00FF9D',
-    params: { ticker: 'AAPL', quantity: 10 },
+    type: 'UNISWAP_SWAP',
+    protocol: Protocol.UNISWAP,
+    label: 'Swap Tokens',
+    description: 'Execute token swap on Uniswap V3',
+    color: PROTOCOL_COLORS[Protocol.UNISWAP],
+    params: {
+      tokenIn: 'USDC',
+      tokenOut: 'WETH',
+      amount: 1000,
+      slippage: 0.5,
+    },
   },
   {
-    type: 'BUY_ON_DIP',
-    protocol: Protocol.ENTRY,
-    label: 'BUY_ON_DIP',
-    description: 'Buy when price drops X%',
-    color: '#00FF9D',
-    params: { ticker: 'AAPL', quantity: 10, percentage: 5 },
+    type: 'PRICE_CHECK',
+    protocol: Protocol.UNISWAP,
+    label: 'Check Price',
+    description: 'Get pool price & liquidity',
+    color: PROTOCOL_COLORS[Protocol.UNISWAP],
+    params: {
+      tokenIn: 'USDC',
+      tokenOut: 'WETH',
+    },
   },
   {
-    type: 'MARKET_SELL',
-    protocol: Protocol.EXIT,
-    label: 'MARKET_SELL',
-    description: 'Sell at current market price',
-    color: '#FF4444',
-    params: { ticker: 'AAPL', quantity: 10 },
+    type: 'CREATE_LP_POSITION',
+    protocol: Protocol.UNISWAP,
+    label: 'Create LP Position',
+    description: 'Provide liquidity to pool',
+    color: PROTOCOL_COLORS[Protocol.UNISWAP],
+    params: {
+      token0: 'WETH',
+      token1: 'USDC',
+      feeTier: 3000,
+      amount: 5000,
+      tickLower: -887220,
+      tickUpper: 887220,
+    },
   },
   {
-    type: 'TAKE_PROFIT',
-    protocol: Protocol.EXIT,
-    label: 'TAKE_PROFIT',
-    description: 'Sell when profit reaches X%',
-    color: '#FF4444',
-    params: { ticker: 'AAPL', percentage: 10 },
+    type: 'COLLECT_FEES',
+    protocol: Protocol.UNISWAP,
+    label: 'Collect LP Fees',
+    description: 'Claim earned trading fees',
+    color: PROTOCOL_COLORS[Protocol.UNISWAP],
+    params: {},
+  },
+
+  // ===== AAVE LENDING BLOCKS =====
+  {
+    type: 'AAVE_SUPPLY',
+    protocol: Protocol.AAVE,
+    label: 'Supply Collateral',
+    description: 'Supply assets to earn yield',
+    color: PROTOCOL_COLORS[Protocol.AAVE],
+    params: {
+      asset: 'USDC',
+      supplyAmount: 5000,
+    },
   },
   {
-    type: 'LIMIT_BUY',
-    protocol: Protocol.ORDERS,
-    label: 'LIMIT_BUY',
-    description: 'Buy at specific price',
-    color: '#8247E5',
-    params: { ticker: 'AAPL', quantity: 10, price: 150 },
+    type: 'AAVE_BORROW',
+    protocol: Protocol.AAVE,
+    label: 'Borrow Asset',
+    description: 'Borrow against collateral',
+    color: PROTOCOL_COLORS[Protocol.AAVE],
+    params: {
+      asset: 'WETH',
+      borrowAmount: 1,
+      collateralFactor: 0.8,
+    },
   },
+  {
+    type: 'REPAY_DEBT',
+    protocol: Protocol.AAVE,
+    label: 'Repay Debt',
+    description: 'Repay borrowed assets',
+    color: PROTOCOL_COLORS[Protocol.AAVE],
+    params: {
+      asset: 'WETH',
+      amount: 1,
+    },
+  },
+  {
+    type: 'HEALTH_FACTOR_CHECK',
+    protocol: Protocol.AAVE,
+    label: 'Health Check',
+    description: 'Monitor liquidation risk',
+    color: PROTOCOL_COLORS[Protocol.AAVE],
+    params: {
+      threshold: 1.5,
+    },
+  },
+
+  // ===== LOGIC BLOCKS =====
+  {
+    type: 'IF_CONDITION',
+    protocol: Protocol.LOGIC,
+    label: 'If Condition',
+    description: 'Conditional execution',
+    color: PROTOCOL_COLORS[Protocol.LOGIC],
+    params: {
+      condition: 'APY > 5',
+    },
+  },
+  {
+    type: 'GAS_CHECKER',
+    protocol: Protocol.LOGIC,
+    label: 'Gas Check',
+    description: 'Execute if gas below threshold',
+    color: PROTOCOL_COLORS[Protocol.LOGIC],
+    params: {
+      threshold: 50,
+    },
+  },
+
+  // ===== RISK MANAGEMENT BLOCKS =====
   {
     type: 'STOP_LOSS',
-    protocol: Protocol.ORDERS,
-    label: 'STOP_LOSS',
-    description: 'Sell if price drops to X',
-    color: '#FF6B6B',
-    params: { ticker: 'AAPL', price: 140 },
-  },
-  {
-    type: 'RSI_SIGNAL',
-    protocol: Protocol.INDICATORS,
-    label: 'RSI_SIGNAL',
-    description: 'Trigger on RSI threshold',
-    color: '#FFD93D',
-    params: { ticker: 'AAPL', threshold: 30, period: 14 },
-  },
-  {
-    type: 'MACD_CROSS',
-    protocol: Protocol.INDICATORS,
-    label: 'MACD_CROSS',
-    description: 'Trigger on MACD crossover',
-    color: '#FFD93D',
-    params: { ticker: 'AAPL' },
-  },
-  {
-    type: 'MA_CROSS',
-    protocol: Protocol.INDICATORS,
-    label: 'MA_CROSS',
-    description: 'Moving Average crossover',
-    color: '#FFD93D',
-    params: { ticker: 'AAPL', period: 50 },
+    protocol: Protocol.RISK,
+    label: 'Stop Loss',
+    description: 'Exit if loss exceeds threshold',
+    color: PROTOCOL_COLORS[Protocol.RISK],
+    params: {
+      threshold: -10,
+    },
   },
   {
     type: 'POSITION_SIZE',
     protocol: Protocol.RISK,
-    label: 'POSITION_SIZE',
-    description: 'Allocate % of portfolio',
-    color: '#6C63FF',
-    params: { ticker: 'AAPL', percentage: 10 },
-  },
-  {
-    type: 'MAX_DRAWDOWN',
-    protocol: Protocol.RISK,
-    label: 'MAX_DRAWDOWN',
-    description: 'Exit if loss exceeds X%',
-    color: '#6C63FF',
-    params: { percentage: 15 },
+    label: 'Position Size',
+    description: 'Calculate optimal position size',
+    color: PROTOCOL_COLORS[Protocol.RISK],
+    params: {
+      percentage: 25,
+    },
   },
 ];
+
+// Token addresses for Sepolia testnet
+export const TOKEN_ADDRESSES = {
+  WETH: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
+  USDC: '0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8',
+  DAI: '0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357',
+  USDT: '0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0',
+} as const;
+
+// Block metadata for UI
+export const BLOCK_METADATA = {
+  UNISWAP_SWAP: {
+    icon: '🔄',
+    category: 'DEX Trading',
+    requiredParams: ['tokenIn', 'tokenOut', 'amount'],
+  },
+  PRICE_CHECK: {
+    icon: '💹',
+    category: 'DEX Trading',
+    requiredParams: ['tokenIn', 'tokenOut'],
+  },
+  CREATE_LP_POSITION: {
+    icon: '💧',
+    category: 'Liquidity',
+    requiredParams: ['token0', 'token1', 'feeTier'],
+  },
+  COLLECT_FEES: {
+    icon: '💰',
+    category: 'Liquidity',
+    requiredParams: [],
+  },
+  AAVE_SUPPLY: {
+    icon: '📥',
+    category: 'Lending',
+    requiredParams: ['asset', 'supplyAmount'],
+  },
+  AAVE_BORROW: {
+    icon: '📤',
+    category: 'Lending',
+    requiredParams: ['asset', 'borrowAmount'],
+  },
+  REPAY_DEBT: {
+    icon: '💸',
+    category: 'Lending',
+    requiredParams: ['asset', 'amount'],
+  },
+  HEALTH_FACTOR_CHECK: {
+    icon: '❤️',
+    category: 'Lending',
+    requiredParams: ['threshold'],
+  },
+  IF_CONDITION: {
+    icon: '❓',
+    category: 'Logic',
+    requiredParams: ['condition'],
+  },
+  GAS_CHECKER: {
+    icon: '⛽',
+    category: 'Logic',
+    requiredParams: ['threshold'],
+  },
+  STOP_LOSS: {
+    icon: '🛑',
+    category: 'Risk',
+    requiredParams: ['threshold'],
+  },
+  POSITION_SIZE: {
+    icon: '📊',
+    category: 'Risk',
+    requiredParams: ['percentage'],
+  },
+} as const;
 
 export const MOCK_MARKET_DATA = {
   marketStatus: 'OPEN' as const,

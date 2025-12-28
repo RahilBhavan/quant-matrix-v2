@@ -1,18 +1,47 @@
 export enum Protocol {
+  // DeFi Protocols
+  UNISWAP = 'UNISWAP',
+  AAVE = 'AAVE',
+  COMPOUND = 'COMPOUND',
+  // Logic & Risk
+  LOGIC = 'LOGIC',
+  RISK = 'RISK',
+  // Legacy (will be removed)
   ENTRY = 'ENTRY',
   EXIT = 'EXIT',
   ORDERS = 'ORDERS',
-  INDICATORS = 'INDICATORS',
-  LOGIC = 'LOGIC',
-  RISK = 'RISK'
+  INDICATORS = 'INDICATORS'
 }
 
 export interface BlockParams {
+  // Legacy stock params
   ticker?: string;
   quantity?: number;
   price?: number;
-  threshold?: number;
   period?: number;
+
+  // DeFi DEX params
+  tokenIn?: string;
+  tokenOut?: string;
+  amount?: number;
+  slippage?: number;
+
+  // DeFi Lending params
+  asset?: string;
+  supplyAmount?: number;
+  borrowAmount?: number;
+  collateralFactor?: number;
+
+  // DeFi LP params
+  token0?: string;
+  token1?: string;
+  feeTier?: number;
+  tickLower?: number;
+  tickUpper?: number;
+
+  // Logic params
+  condition?: string;
+  threshold?: number;
   percentage?: number;
 }
 
