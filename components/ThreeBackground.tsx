@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useEffect, ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Float } from '@react-three/drei';
+import { Float, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { ThreeSceneProvider, useThreeScene } from './three/ThreeScene';
 import { createNeonMaterial, COLORS } from '@/utils/three-helpers';
@@ -69,14 +69,16 @@ const PerformanceMonitor: React.FC = () => {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-[100] font-mono text-xs bg-black/80 text-white px-2 py-1 border border-white/20 pointer-events-none">
-      <div className="flex gap-4">
-        <span>FPS: {fps}</span>
-        {shouldReduceQuality && (
-          <span className="text-red-500">LOW PERF</span>
-        )}
+    <Html>
+      <div className="fixed bottom-4 left-4 z-[100] font-mono text-xs bg-black/80 text-white px-2 py-1 border border-white/20 pointer-events-none">
+        <div className="flex gap-4">
+          <span>FPS: {fps}</span>
+          {shouldReduceQuality && (
+            <span className="text-red-500">LOW PERF</span>
+          )}
+        </div>
       </div>
-    </div>
+    </Html>
   );
 };
 
@@ -142,9 +144,6 @@ const ThreeBackgroundInner: React.FC<{
       <SceneContent showAttractor={showAttractor}>
         {children}
       </SceneContent>
-
-      {/* Performance overlay (has context access) */}
-      {showPerformanceMonitor && <PerformanceMonitor />}
     </>
   );
 };
@@ -156,9 +155,13 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({
 }) => {
   return (
     <ThreeSceneProvider>
+      {/* 2D DOM Elements (Performance Monitor) */}
+      {showPerformanceMonitor && <PerformanceMonitor />}
+
+      {/* 3D Scene Elements */}
       <ThreeBackgroundInner
         showAttractor={showAttractor}
-        showPerformanceMonitor={showPerformanceMonitor}
+        showPerformanceMonitor={false}
       >
         {children}
       </ThreeBackgroundInner>

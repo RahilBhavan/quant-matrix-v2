@@ -8,9 +8,10 @@ interface HUDProps {
   marketData: MarketData;
   onOpenBacktest: () => void;
   onOpenLibrary: () => void;
+  onOpenPriceChart: () => void;
 }
 
-export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktest, onOpenLibrary }) => {
+export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktest, onOpenLibrary, onOpenPriceChart }) => {
   const { state: portfolio } = usePortfolio();
   const [demoQuote, setDemoQuote] = useState<{ price: number; change: number } | null>(null);
 
@@ -98,6 +99,13 @@ export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktes
         >
           <span className="w-2 h-2 border border-white"></span>
           [03] LIBRARY
+        </div>
+        <div
+          onClick={onOpenPriceChart}
+          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+        >
+          <span className="w-2 h-2 border border-white"></span>
+          [04] PRICE_CHART
         </div>
       </div>
 
