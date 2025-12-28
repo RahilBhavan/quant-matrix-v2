@@ -62,3 +62,107 @@ export interface StockQuote {
 }
 
 export type MatrixStatus = 'IDLE' | 'OPTIMAL' | 'ANALYZING' | 'EXECUTING' | 'CRITICAL';
+
+// Phase 2: Backtesting and Execution Types
+
+export interface HistoricalBar {
+  date: Date | string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface Trade {
+  id: string;
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  quantity: number;
+  price: number;
+  date: Date;
+  blockType: string;
+  pnl?: number;
+}
+
+export interface PerformanceMetrics {
+  totalReturn: number;
+  totalReturnPercent: number;
+  sharpeRatio: number;
+  maxDrawdown: number;
+  maxDrawdownPercent: number;
+  winRate: number;
+  totalTrades: number;
+  profitFactor: number;
+}
+
+export interface BacktestConfig {
+  symbol: string;
+  startDate: string;
+  endDate: string;
+  initialCapital: number;
+  blocks: LegoBlock[];
+}
+
+export interface EquityPoint {
+  date: Date | string;
+  equity: number;
+}
+
+export interface BacktestResult {
+  trades: Trade[];
+  metrics: PerformanceMetrics;
+  equityCurve: EquityPoint[];
+  dailyReturns: number[];
+}
+
+export interface ExecutionContext {
+  currentBar: HistoricalBar;
+  previousBar?: HistoricalBar;
+  portfolio: {
+    cash: number;
+    positions: Position[];
+    totalEquity: number;
+  };
+  indicators: Map<string, any>;
+  mode: 'backtest' | 'live';
+  peakEquity?: number;
+}
+
+export interface ExecutionAction {
+  type: 'BUY' | 'SELL' | 'PLACE_ORDER' | 'SKIP';
+  symbol: string;
+  quantity?: number;
+  price?: number;
+  orderType?: Order['type'];
+  reason: string;
+}
+
+export interface ValidationError {
+  blockId: string;
+  blockType: string;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationError[];
+}
+
+export interface SavedStrategy {
+  id: string;
+  name: string;
+  blocks: LegoBlock[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface BacktestRecord {
+  id: string;
+  strategyId: string;
+  config: BacktestConfig;
+  result: BacktestResult;
+  timestamp: Date;
+}

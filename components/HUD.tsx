@@ -6,9 +6,11 @@ import { getQuote, isMarketOpen } from '../services/marketDataService';
 interface HUDProps {
   status: MatrixStatus;
   marketData: MarketData;
+  onOpenBacktest: () => void;
+  onOpenLibrary: () => void;
 }
 
-export const HUD: React.FC<HUDProps> = memo(({ status, marketData }) => {
+export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktest, onOpenLibrary }) => {
   const { state: portfolio } = usePortfolio();
   const [demoQuote, setDemoQuote] = useState<{ price: number; change: number } | null>(null);
 
@@ -83,13 +85,19 @@ export const HUD: React.FC<HUDProps> = memo(({ status, marketData }) => {
           <span className="w-2 h-2 bg-white"></span>
           [01] WORKSPACE
         </div>
-        <div className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone">
+        <div
+          onClick={onOpenBacktest}
+          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+        >
           <span className="w-2 h-2 border border-white"></span>
           [02] BACKTEST
         </div>
-        <div className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone">
+        <div
+          onClick={onOpenLibrary}
+          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+        >
           <span className="w-2 h-2 border border-white"></span>
-          [03] PORTFOLIO
+          [03] LIBRARY
         </div>
       </div>
 
