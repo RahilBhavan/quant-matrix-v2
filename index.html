@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QUANT MATRIX // STEALTH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              'qm-black': '#000000',
+              'qm-white': '#FFFFFF',
+              'qm-neon-cyan': '#00FF9D',
+            },
+            animation: {
+              'pulse-fast': 'pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        cursor: none;
+        overflow-x: hidden;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      ::selection { background: #FFFFFF; color: #000000; }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/": "https://esm.sh/react@18.3.1/",
+    "react-dom": "https://esm.sh/react-dom@18.3.1?deps=react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+    "framer-motion": "https://esm.sh/framer-motion@10.18.0?deps=react@18.3.1,react-dom@18.3.1",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0?deps=react@18.3.1",
+    "@google/genai": "https://esm.sh/@google/genai@0.1.1",
+    "uuid": "https://esm.sh/uuid@9.0.1",
+    "three": "https://esm.sh/three@0.161.0",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.16?deps=three@0.161.0,react@18.3.1,react-dom@18.3.1",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@9.102.0?deps=three@0.161.0,react@18.3.1,react-dom@18.3.1,@react-three/fiber@8.15.16",
+    "maath": "https://esm.sh/maath@0.10.7?deps=three@0.161.0,react@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-black text-white antialiased overflow-x-hidden h-screen w-screen selection:bg-white selection:text-black">
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "name": "Quant Matrix",
+  "description": "An institutional-grade, stark monochrome DeFi strategy builder. Visualizes smart contract interactions as composable 'Lego' blocks on an execution spine. Features Gemini-powered strategy auditing.",
+  "requestFramePermissions": []
+}

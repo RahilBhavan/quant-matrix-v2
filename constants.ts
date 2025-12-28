@@ -1,0 +1,98 @@
+import { LegoBlock, Protocol } from './types';
+
+export const AVAILABLE_BLOCKS: Omit<LegoBlock, 'id'>[] = [
+  {
+    type: 'MARKET_BUY',
+    protocol: Protocol.ENTRY,
+    label: 'MARKET_BUY',
+    description: 'Buy at current market price',
+    color: '#00FF9D',
+    params: { ticker: 'AAPL', quantity: 10 },
+  },
+  {
+    type: 'BUY_ON_DIP',
+    protocol: Protocol.ENTRY,
+    label: 'BUY_ON_DIP',
+    description: 'Buy when price drops X%',
+    color: '#00FF9D',
+    params: { ticker: 'AAPL', quantity: 10, percentage: 5 },
+  },
+  {
+    type: 'MARKET_SELL',
+    protocol: Protocol.EXIT,
+    label: 'MARKET_SELL',
+    description: 'Sell at current market price',
+    color: '#FF4444',
+    params: { ticker: 'AAPL', quantity: 10 },
+  },
+  {
+    type: 'TAKE_PROFIT',
+    protocol: Protocol.EXIT,
+    label: 'TAKE_PROFIT',
+    description: 'Sell when profit reaches X%',
+    color: '#FF4444',
+    params: { ticker: 'AAPL', percentage: 10 },
+  },
+  {
+    type: 'LIMIT_BUY',
+    protocol: Protocol.ORDERS,
+    label: 'LIMIT_BUY',
+    description: 'Buy at specific price',
+    color: '#8247E5',
+    params: { ticker: 'AAPL', quantity: 10, price: 150 },
+  },
+  {
+    type: 'STOP_LOSS',
+    protocol: Protocol.ORDERS,
+    label: 'STOP_LOSS',
+    description: 'Sell if price drops to X',
+    color: '#FF6B6B',
+    params: { ticker: 'AAPL', price: 140 },
+  },
+  {
+    type: 'RSI_SIGNAL',
+    protocol: Protocol.INDICATORS,
+    label: 'RSI_SIGNAL',
+    description: 'Trigger on RSI threshold',
+    color: '#FFD93D',
+    params: { ticker: 'AAPL', threshold: 30, period: 14 },
+  },
+  {
+    type: 'MACD_CROSS',
+    protocol: Protocol.INDICATORS,
+    label: 'MACD_CROSS',
+    description: 'Trigger on MACD crossover',
+    color: '#FFD93D',
+    params: { ticker: 'AAPL' },
+  },
+  {
+    type: 'MA_CROSS',
+    protocol: Protocol.INDICATORS,
+    label: 'MA_CROSS',
+    description: 'Moving Average crossover',
+    color: '#FFD93D',
+    params: { ticker: 'AAPL', period: 50 },
+  },
+  {
+    type: 'POSITION_SIZE',
+    protocol: Protocol.RISK,
+    label: 'POSITION_SIZE',
+    description: 'Allocate % of portfolio',
+    color: '#6C63FF',
+    params: { ticker: 'AAPL', percentage: 10 },
+  },
+  {
+    type: 'MAX_DRAWDOWN',
+    protocol: Protocol.RISK,
+    label: 'MAX_DRAWDOWN',
+    description: 'Exit if loss exceeds X%',
+    color: '#6C63FF',
+    params: { percentage: 15 },
+  },
+];
+
+export const MOCK_MARKET_DATA = {
+  marketStatus: 'OPEN' as const,
+  lastUpdate: new Date(),
+  dataFreshness: 0,
+};

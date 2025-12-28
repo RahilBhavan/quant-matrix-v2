@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:brainstorming)",
+      "Bash(mkdir:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd comprehensive design document for Quant Matrix platform\n\n- Core architecture: 3-layer system with React/Three.js frontend\n- Features: Strategy builder, backtesting engine, paper trading, AI assistant\n- UI/UX: Maintains existing minimalist aesthetic with 3D visualizations\n- Data management: Alpha Vantage integration with caching strategy\n- Error handling: Comprehensive edge case coverage\n- Development roadmap: 4-phase implementation plan\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Skill(superpowers:using-git-worktrees)",
+      "Bash(test -d /Users/rahilbhavan/quant-matrix v2/services)",
+      "Bash(test -d /Users/rahilbhavan/quant-matrix v2/context)",
+      "Bash(cat:*)",
+      "Bash(\".env.local\" <<'EOF'\n# Gemini AI API Key\n# Get from: https://ai.google.dev/\nAPI_KEY=your_gemini_api_key_here\n\n# Alpha Vantage API Key\n# Get from: https://www.alphavantage.co/support/#api-key\n# Free tier: 25 requests/day, 5 requests/minute\nVITE_ALPHA_VANTAGE_KEY=your_alpha_vantage_key_here\nEOF)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}
