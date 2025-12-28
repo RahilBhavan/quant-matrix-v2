@@ -9,9 +9,10 @@ interface HUDProps {
   onOpenBacktest: () => void;
   onOpenLibrary: () => void;
   onOpenPriceChart: () => void;
+  onOpenPortfolio: () => void;
 }
 
-export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktest, onOpenLibrary, onOpenPriceChart }) => {
+export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktest, onOpenLibrary, onOpenPriceChart, onOpenPortfolio }) => {
   const { state: portfolio } = usePortfolio();
   const [demoQuote, setDemoQuote] = useState<{ price: number; change: number } | null>(null);
 
@@ -107,21 +108,26 @@ export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktes
           <span className="w-2 h-2 border border-white"></span>
           [04] PRICE_CHART
         </div>
+        <div
+          onClick={onOpenPortfolio}
+          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+        >
+          <span className="w-2 h-2 border border-white"></span>
+          [05] PORTFOLIO
+        </div>
       </div>
 
       {/* Bottom Right: Market Status */}
       <div className="fixed bottom-32 right-8 z-50 text-right font-mono text-xs pointer-events-none">
         <div className="flex items-center justify-end gap-2">
-          <span className={`w-2 h-2 rounded-full ${
-            marketStatus === 'OPEN' ? 'bg-green-500 animate-pulse' : 'bg-red-500'
-          }`}></span>
+          <span className={`w-2 h-2 rounded-full ${marketStatus === 'OPEN' ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+            }`}></span>
           <span className="uppercase">MARKET: {marketStatus}</span>
         </div>
         <div className="flex items-center justify-end gap-2 mt-1">
-          <span className={`w-2 h-2 rounded-full ${
-            status === 'OPTIMAL' ? 'bg-green-500' :
-            status === 'CRITICAL' ? 'bg-red-500' : 'bg-white'
-          } animate-pulse`}></span>
+          <span className={`w-2 h-2 rounded-full ${status === 'OPTIMAL' ? 'bg-green-500' :
+              status === 'CRITICAL' ? 'bg-red-500' : 'bg-white'
+            } animate-pulse`}></span>
           <span className="uppercase">STATUS: {status}</span>
         </div>
         <div className="opacity-50 mt-1">

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, TrendingUp, TrendingDown, Activity, DollarSign, Target, Zap } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, Activity, DollarSign, Target, Zap, Cuboid, BarChart3 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { LegoBlock, BacktestConfig, BacktestResult } from '../types';
 import { runBacktest } from '../services/backtestEngine';
 import { saveBacktestResult } from '../services/persistenceService';
+import { EquityCurve3D } from './visualizations/EquityCurve3D';
+import { ThreeSceneProvider } from './three/ThreeScene';
 
 interface BacktestPanelProps {
   isOpen: boolean;
@@ -24,6 +26,7 @@ export const BacktestPanel: React.FC<BacktestPanelProps> = ({ isOpen, onClose, b
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<BacktestResult | null>(null);
+  const [view3D, setView3D] = useState(false);
 
   const handleRunBacktest = async () => {
     if (blocks.length === 0) {
@@ -228,42 +231,70 @@ export const BacktestPanel: React.FC<BacktestPanelProps> = ({ isOpen, onClose, b
 
                   {/* Equity Curve */}
                   <div className="space-y-4">
-                    <h3 className="font-mono text-xs tracking-widest opacity-60 uppercase">Equity Curve</h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-mono text-xs tracking-widest opacity-60 uppercase">Equity Curve</h3>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setView3D(false)}
+                          className={`p-2 border transition-colors interactive-zone ${!view3D ? 'bg-white text-black border-white' : 'border-white/20 hover:border-white'}`}
+                          title="2D View"
+                        >
+                          <BarChart3 size={14} />
+                        </button>
+                        <button
+                          onClick={() => setView3D(true)}
+                          className={`p-2 border transition-colors interactive-zone ${view3D ? 'bg-white text-black border-white' : 'border-white/20 hover:border-white'}`}
+                          title="3D View"
+                        >
+                          <Cuboid size={14} />
+                        </button>
+                      </div>
+                    </div>
 
                     <div className="bg-white/5 p-4 h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={result.equityCurve.map(point => ({
-                          date: typeof point.date === 'string' ? point.date : point.date.toISOString().split('T')[0],
-                          equity: point.equity,
-                        }))}>
-                          <XAxis
-                            dataKey="date"
-                            tick={{ fill: '#fff', fontSize: 10 }}
-                            tickFormatter={(val) => format(new Date(val), 'MM/dd')}
+                      {view3D ? (
+                        <ThreeSceneProvider>
+                          <EquityCurve3D
+                            equityCurve={result.equityCurve}
+                            trades={result.trades}
+                            initialCapital={initialCapital}
                           />
-                          <YAxis
-                            tick={{ fill: '#fff', fontSize: 10 }}
-                            tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              background: '#000',
-                              border: '1px solid #fff',
-                              borderRadius: 0,
-                            }}
-                            labelStyle={{ color: '#fff', fontSize: 10 }}
-                            itemStyle={{ color: '#00FF9D', fontSize: 10 }}
-                            formatter={(val: number) => formatCurrency(val)}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="equity"
-                            stroke="#00FF9D"
-                            strokeWidth={2}
-                            dot={false}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
+                        </ThreeSceneProvider>
+                      ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={result.equityCurve.map(point => ({
+                            date: typeof point.date === 'string' ? point.date : point.date.toISOString().split('T')[0],
+                            equity: point.equity,
+                          }))}>
+                            <XAxis
+                              dataKey="date"
+                              tick={{ fill: '#fff', fontSize: 10 }}
+                              tickFormatter={(val) => format(new Date(val), 'MM/dd')}
+                            />
+                            <YAxis
+                              tick={{ fill: '#fff', fontSize: 10 }}
+                              tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`}
+                            />
+                            <Tooltip
+                              contentStyle={{
+                                background: '#000',
+                                border: '1px solid #fff',
+                                borderRadius: 0,
+                              }}
+                              labelStyle={{ color: '#fff', fontSize: 10 }}
+                              itemStyle={{ color: '#00FF9D', fontSize: 10 }}
+                              formatter={(val: number) => formatCurrency(val)}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="equity"
+                              stroke="#00FF9D"
+                              strokeWidth={2}
+                              dot={false}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      )}
                     </div>
                   </div>
 

@@ -7,6 +7,7 @@ import { ActionRibbon } from './ActionRibbon';
 import { BacktestPanel } from './BacktestPanel';
 import { StrategyLibrary } from './StrategyLibrary';
 import { PriceChartPanel } from './panels/PriceChartPanel';
+import { PortfolioPanel } from './panels/PortfolioPanel';
 import { AVAILABLE_BLOCKS, MOCK_MARKET_DATA } from '../constants';
 import { LegoBlock, MatrixStatus, ExecutionContext, ValidationResult } from '../types';
 import { auditStrategy } from '../geminiService';
@@ -27,6 +28,7 @@ export const Workspace: React.FC = () => {
   const [showBacktestPanel, setShowBacktestPanel] = useState(false);
   const [showStrategyLibrary, setShowStrategyLibrary] = useState(false);
   const [showPriceChart, setShowPriceChart] = useState(false);
+  const [showPortfolioPanel, setShowPortfolioPanel] = useState(false);
   const { state: portfolio, buyStock, sellStock } = usePortfolio();
 
   // Validate strategy whenever blocks change
@@ -151,6 +153,7 @@ export const Workspace: React.FC = () => {
         onOpenBacktest={() => setShowBacktestPanel(true)}
         onOpenLibrary={() => setShowStrategyLibrary(true)}
         onOpenPriceChart={() => setShowPriceChart(true)}
+        onOpenPortfolio={() => setShowPortfolioPanel(true)}
       />
 
       {/* Main Workspace */}
@@ -271,6 +274,12 @@ export const Workspace: React.FC = () => {
       <PriceChartPanel
         isOpen={showPriceChart}
         onClose={() => setShowPriceChart(false)}
+      />
+
+      {/* Portfolio Panel */}
+      <PortfolioPanel
+        isOpen={showPortfolioPanel}
+        onClose={() => setShowPortfolioPanel(false)}
       />
     </div>
   );
