@@ -1,3 +1,11 @@
+/**
+ * LEGACY STOCK TRADING CONSTANTS
+ * TODO: Replace with DeFi protocol blocks in Phase 4
+ *
+ * Current blocks are placeholders from stock trading platform.
+ * Will be replaced with: UNISWAP_SWAP, AAVE_SUPPLY, CREATE_LP_POSITION, etc.
+ */
+
 import { LegoBlock, Protocol } from './types';
 
 export const AVAILABLE_BLOCKS: Omit<LegoBlock, 'id'>[] = [
