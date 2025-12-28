@@ -1,13 +1,15 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HUD } from './HUD';
 import { Spine } from './Spine';
 import { ActionRibbon } from './ActionRibbon';
-import { BacktestPanel } from './BacktestPanel';
-import { StrategyLibrary } from './StrategyLibrary';
-import { PriceChartPanel } from './panels/PriceChartPanel';
-import { PortfolioPanel } from './panels/PortfolioPanel';
+
+// Lazy load heavy panels for better performance
+const BacktestPanel = lazy(() => import('./BacktestPanel').then(m => ({ default: m.BacktestPanel })));
+const StrategyLibrary = lazy(() => import('./StrategyLibrary').then(m => ({ default: m.StrategyLibrary })));
+const PriceChartPanel = lazy(() => import('./panels/PriceChartPanel').then(m => ({ default: m.PriceChartPanel })));
+const PortfolioPanel = lazy(() => import('./panels/PortfolioPanel').then(m => ({ default: m.PortfolioPanel })));
 import { AVAILABLE_BLOCKS, MOCK_MARKET_DATA } from '../constants';
 import { LegoBlock, MatrixStatus, ExecutionContext, ValidationResult } from '../types';
 import { auditStrategy } from '../geminiService';
@@ -255,32 +257,45 @@ export const Workspace: React.FC = () => {
       {/* Memoized Action Ribbon */}
       <ActionRibbon onAddBlock={handleAddBlock} />
 
-      {/* Backtest Panel */}
-      <BacktestPanel
-        isOpen={showBacktestPanel}
-        onClose={() => setShowBacktestPanel(false)}
-        blocks={blocks}
-      />
+      {/* Lazy-loaded Panels with Suspense */}
+      <Suspense fallback={null}>
+        {showBacktestPanel && (
+          <BacktestPanel
+            isOpen={showBacktestPanel}
+            onClose={() => setShowBacktestPanel(false)}
+            blocks={blocks}
+          />
+        )}
+      </Suspense>
 
-      {/* Strategy Library */}
-      <StrategyLibrary
-        isOpen={showStrategyLibrary}
-        onClose={() => setShowStrategyLibrary(false)}
-        currentBlocks={blocks}
-        onLoadStrategy={handleLoadStrategy}
-      />
+      <Suspense fallback={null}>
+        {showStrategyLibrary && (
+          <StrategyLibrary
+            isOpen={showStrategyLibrary}
+            onClose={() => setShowStrategyLibrary(false)}
+            currentBlocks={blocks}
+            onLoadStrategy={handleLoadStrategy}
+          />
+        )}
+      </Suspense>
 
-      {/* Price Chart Panel */}
-      <PriceChartPanel
-        isOpen={showPriceChart}
-        onClose={() => setShowPriceChart(false)}
-      />
+      <Suspense fallback={null}>
+        {showPriceChart && (
+          <PriceChartPanel
+            isOpen={showPriceChart}
+            onClose={() => setShowPriceChart(false)}
+          />
+        )}
+      </Suspense>
 
-      {/* Portfolio Panel */}
-      <PortfolioPanel
-        isOpen={showPortfolioPanel}
-        onClose={() => setShowPortfolioPanel(false)}
-      />
+      <Suspense fallback={null}>
+        {showPortfolioPanel && (
+          <PortfolioPanel
+            isOpen={showPortfolioPanel}
+            onClose={() => setShowPortfolioPanel(false)}
+          />
+        )}
+      </Suspense>
     </div>
   );
 };
