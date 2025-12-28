@@ -1,4 +1,11 @@
 /**
+ * DeFi Protocol Constants
+ */
+export * from './src/constants/defi-blocks';
+
+// LEGACY STOCK CONSTANTS BELOW - Will be removed
+
+/**
  * LEGACY STOCK TRADING CONSTANTS
  * TODO: Replace with DeFi protocol blocks in Phase 4
  *
