@@ -205,10 +205,7 @@ export const Workspace: React.FC = () => {
     <div className="relative w-screen h-screen bg-black overflow-hidden selection:bg-white selection:text-black">
 
       {/* Background Ambience */}
-      <div
-        className="absolute inset-0 opacity-20 pointer-events-none"
-        style={{ backgroundImage: `url('${NOISE_BASE64}')` }}
-      />
+
       <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
 
       {/* Screen Reader Accessibility: Hidden semantic list */}
