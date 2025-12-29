@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CustomCursor } from './components/CustomCursor';
 import { Workspace } from './components/Workspace';
 import { LandingPage } from './components/LandingPage';
+import { Header } from './components/layout';
 import { PortfolioProvider } from './context/PortfolioContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 
@@ -10,6 +11,7 @@ type ViewState = 'LANDING' | 'WORKSPACE';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('LANDING');
+  const [currentView] = useState<'workspace' | 'backtest' | 'portfolio' | 'optimize'>('workspace');
 
   const enterMatrix = () => {
     setView('WORKSPACE');
@@ -42,12 +44,26 @@ const App: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "circOut" }}
-              className="w-full h-full"
+              className="w-full h-full min-h-screen bg-canvas"
               id="main-workspace"
               role="main"
               aria-label="Strategy workspace"
             >
-              <Workspace />
+              <Header
+                currentView={currentView}
+                centerContent={
+                  currentView === 'workspace' ? (
+                    <div className="flex gap-2">
+                      {/* Category tabs - to be implemented */}
+                    </div>
+                  ) : null
+                }
+              />
+
+              {/* Main content area - offset for fixed header */}
+              <main className="pt-[60px]">
+                <Workspace />
+              </main>
             </motion.div>
           )}
         </AnimatePresence>
