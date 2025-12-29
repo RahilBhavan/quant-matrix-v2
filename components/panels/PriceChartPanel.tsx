@@ -13,7 +13,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, TrendingUp, RotateCcw, ChevronDown } from 'lucide-react';
 import { PriceChart3D, OHLCTooltip } from '../visualizations/PriceChart3D';
-import { ThreeBackground } from '../ThreeBackground';
+
 import { getHistoricalData } from '@/services/marketDataService';
 import { HistoricalBar } from '@/types';
 import { panelSlideUp } from '@/utils/animation-presets';
@@ -228,11 +228,10 @@ export const PriceChartPanel: React.FC<PriceChartPanelProps> = ({
                 <button
                   key={range.value}
                   onClick={() => setDateRange(range.value)}
-                  className={`px-3 py-2 font-mono text-xs uppercase tracking-widest transition-colors interactive-zone ${
-                    dateRange === range.value
+                  className={`px-3 py-2 font-mono text-xs uppercase tracking-widest transition-colors interactive-zone ${dateRange === range.value
                       ? 'bg-qm-neon-cyan text-black font-bold'
                       : 'border border-white/20 text-white hover:border-white'
-                  }`}
+                    }`}
                 >
                   {range.label}
                 </button>
@@ -270,9 +269,7 @@ export const PriceChartPanel: React.FC<PriceChartPanelProps> = ({
 
           {!loading && !error && data.length > 0 && (
             <>
-              <ThreeBackground showAttractor={false}>
-                <PriceChart3D data={data} symbol={symbol} onHover={handleHover} />
-              </ThreeBackground>
+              <PriceChart3D data={data} symbol={symbol} onHover={handleHover} />
 
               {/* OHLC Tooltip */}
               <OHLCTooltip bar={hoveredBar} symbol={symbol} position={tooltipPosition} />
