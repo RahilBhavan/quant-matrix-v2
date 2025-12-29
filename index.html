@@ -1,43 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-black">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QUANT MATRIX // STEALTH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter and IBM Plex Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
-            },
-            colors: {
-              'qm-black': '#000000',
-              'qm-white': '#FFFFFF',
-              'qm-neon-cyan': '#00FF9D',
-            },
-            animation: {
-              'pulse-fast': 'pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
-            },
-          },
-        },
-      }
-    </script>
-    <style>
-      body {
-        cursor: none;
-        overflow-x: hidden;
-      }
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      ::selection { background: #FFFFFF; color: #000000; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script type="importmap">
 {
   "imports": {
@@ -59,7 +29,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-black text-white antialiased overflow-x-hidden h-screen w-screen selection:bg-white selection:text-black">
+  <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>

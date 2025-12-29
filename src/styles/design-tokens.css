@@ -1,0 +1,108 @@
+/* Design System Tokens */
+
+/* Reset border radius globally */
+* {
+  border-radius: 0 !important;
+}
+
+/* Typography classes */
+.text-h1 {
+  @apply text-h1 uppercase tracking-wider;
+}
+
+.text-h2 {
+  @apply text-h2 uppercase;
+}
+
+.text-h3 {
+  @apply text-h3;
+}
+
+.text-data {
+  @apply font-mono text-data;
+}
+
+/* Button base styles */
+.btn-primary {
+  @apply bg-ink text-white uppercase font-bold h-[50px] px-6;
+  @apply hover:bg-orange transition-fast;
+}
+
+.btn-secondary {
+  @apply bg-white border border-ink text-ink uppercase font-bold h-[50px] px-6;
+  @apply hover:bg-ink hover:text-white transition-fast;
+}
+
+.btn-disabled {
+  @apply bg-gray-300 text-gray-500 cursor-not-allowed;
+}
+
+/* Input base styles */
+.input-base {
+  @apply border-b border-border bg-transparent px-0 py-2;
+  @apply focus:border-b-2 focus:border-ink outline-none;
+  @apply font-mono;
+}
+
+/* Card base styles */
+.card {
+  @apply bg-white border border-border;
+}
+
+.card-header {
+  @apply bg-gray-100 px-3 py-2 border-b border-border;
+  @apply flex items-center justify-between;
+}
+
+/* Modal base styles */
+.modal-backdrop {
+  @apply fixed inset-0 bg-canvas/95 z-50;
+}
+
+.modal-window {
+  @apply bg-white border-2 border-ink max-w-[600px] p-6;
+}
+
+/* Dot grid background */
+.dot-grid {
+  background-image: radial-gradient(circle, #E0E0E0 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Protocol color utilities */
+.border-uniswap {
+  border-color: #FF007A;
+}
+
+.bg-uniswap {
+  background-color: #FF007A;
+}
+
+.text-uniswap {
+  color: #FF007A;
+}
+
+.border-aave {
+  border-color: #B6509E;
+}
+
+.bg-aave {
+  background-color: #B6509E;
+}
+
+.text-aave {
+  color: #B6509E;
+}
+
+/* Success/Error utilities */
+.text-success {
+  color: #00D395;
+}
+
+.text-error {
+  color: #FF4444;
+}
+
+.border-error {
+  border-color: #FF4444;
+}
