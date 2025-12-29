@@ -24,7 +24,7 @@ interface BlockParamEditorProps {
 interface ParamConfig {
     key: keyof BlockParams;
     label: string;
-    type: 'text' | 'number' | 'percentage';
+    type: 'text' | 'number' | 'percentage' | 'boolean';
     min?: number;
     max?: number;
     step?: number;
@@ -37,6 +37,10 @@ const PARAM_CONFIGS: ParamConfig[] = [
     { key: 'threshold', label: 'THRESHOLD', type: 'number', min: 0, max: 100 },
     { key: 'period', label: 'PERIOD', type: 'number', min: 1, step: 1 },
     { key: 'percentage', label: 'PERCENTAGE', type: 'percentage', min: 0, max: 100, step: 0.1 },
+    // MEV Protection params
+    { key: 'useFlashbots', label: 'USE FLASHBOTS', type: 'boolean' },
+    { key: 'privateTransaction', label: 'PRIVATE TX', type: 'boolean' },
+    { key: 'maxPriorityFeePerGas', label: 'MAX PRIORITY FEE (GWEI)', type: 'number', min: 0, step: 1 },
 ];
 
 export const BlockParamEditor: React.FC<BlockParamEditorProps> = ({
@@ -179,29 +183,56 @@ export const BlockParamEditor: React.FC<BlockParamEditorProps> = ({
                             {config.label}
                         </label>
                         <div className="flex-1 relative">
-                            <input
-                                ref={index === 0 ? firstInputRef : undefined}
-                                type={config.type === 'text' ? 'text' : 'number'}
-                                value={localParams[config.key] ?? ''}
-                                onChange={(e) => {
-                                    let value: string | number = e.target.value;
-                                    if (config.type !== 'text') {
-                                        value = parseFloat(e.target.value) || 0;
-                                    } else {
-                                        value = e.target.value.toUpperCase();
-                                    }
-                                    handleParamChange(config.key, value);
-                                }}
-                                min={config.min}
-                                max={config.max}
-                                step={config.step}
-                                className={`w-full bg-transparent border px-2 py-1 font-mono text-sm outline-none transition-colors ${errors[config.key]
-                                        ? 'border-red-500 text-red-500'
-                                        : 'border-white/20 focus:border-qm-neon-cyan'
-                                    }`}
-                            />
-                            {config.type === 'percentage' && (
-                                <span className="absolute right-2 top-1/2 -translate-y-1/2 opacity-50">%</span>
+                            {config.type === 'boolean' ? (
+                                /* Boolean Toggle */
+                                <button
+                                    onClick={() => {
+                                        const currentValue = localParams[config.key] as boolean | undefined;
+                                        handleParamChange(config.key, !currentValue);
+                                    }}
+                                    className={`
+                                        flex items-center gap-2 px-3 py-1 font-mono text-xs
+                                        border transition-all
+                                        ${localParams[config.key]
+                                            ? 'bg-qm-neon-cyan/20 border-qm-neon-cyan text-qm-neon-cyan'
+                                            : 'bg-transparent border-white/20 text-white/60'
+                                        }
+                                    `}
+                                    type="button"
+                                >
+                                    <span className={`w-3 h-3 border ${localParams[config.key] ? 'bg-qm-neon-cyan border-qm-neon-cyan' : 'border-white/40'}`}>
+                                        {localParams[config.key] && '✓'}
+                                    </span>
+                                    <span>{localParams[config.key] ? 'ON' : 'OFF'}</span>
+                                </button>
+                            ) : (
+                                /* Text/Number Input */
+                                <>
+                                    <input
+                                        ref={index === 0 ? firstInputRef : undefined}
+                                        type={config.type === 'text' ? 'text' : 'number'}
+                                        value={localParams[config.key] ?? ''}
+                                        onChange={(e) => {
+                                            let value: string | number = e.target.value;
+                                            if (config.type !== 'text') {
+                                                value = parseFloat(e.target.value) || 0;
+                                            } else {
+                                                value = e.target.value.toUpperCase();
+                                            }
+                                            handleParamChange(config.key, value);
+                                        }}
+                                        min={config.min}
+                                        max={config.max}
+                                        step={config.step}
+                                        className={`w-full bg-transparent border px-2 py-1 font-mono text-sm outline-none transition-colors ${errors[config.key]
+                                            ? 'border-red-500 text-red-500'
+                                            : 'border-white/20 focus:border-qm-neon-cyan'
+                                            }`}
+                                    />
+                                    {config.type === 'percentage' && (
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 opacity-50">%</span>
+                                    )}
+                                </>
                             )}
                             {errors[config.key] && (
                                 <div className="absolute -right-6 top-1/2 -translate-y-1/2">

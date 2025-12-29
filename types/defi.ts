@@ -10,6 +10,7 @@ export type BlockType =
   | 'UNISWAP_SWAP'
   | 'PRICE_CHECK'
   | 'ARBITRAGE_DETECTOR'
+  | 'MEV_PROTECTION'
   // Lending
   | 'AAVE_SUPPLY'
   | 'AAVE_BORROW'
@@ -56,4 +57,9 @@ export interface BlockParams {
   // Logic params
   condition?: string;
   threshold?: number;
+
+  // MEV Protection params
+  useFlashbots?: boolean;
+  maxPriorityFeePerGas?: number;  // gwei
+  privateTransaction?: boolean;
 }

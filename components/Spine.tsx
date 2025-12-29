@@ -28,6 +28,10 @@ interface SpineProps {
   blocks: LegoBlock[];
   setBlocks: (blocks: LegoBlock[]) => void;
   isValid: boolean;
+  selectedBlockId?: string | null;
+  onBlockSelect?: (blockId: string) => void;
+  editingBlockId?: string | null;
+  onEditBlock?: (blockId: string | null) => void;
 }
 
 // Protocol color mapping
@@ -131,8 +135,8 @@ const BlockCard: React.FC<{
         <div
           onClick={onEdit}
           className={`relative bg-black backdrop-blur-md p-4 w-full cursor-pointer transition-all duration-300 overflow-hidden group ${isEditing
-              ? 'border-2 border-qm-neon-cyan'
-              : 'border border-white/20 hover:border-white'
+            ? 'border-2 border-qm-neon-cyan'
+            : 'border border-white/20 hover:border-white'
             }`}
           style={{
             borderLeftColor: protocolColor,
@@ -222,8 +226,21 @@ const BlockCard: React.FC<{
     );
   };
 
-export const Spine: React.FC<SpineProps> = ({ blocks, setBlocks, isValid }) => {
-  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+export const Spine: React.FC<SpineProps> = ({
+  blocks,
+  setBlocks,
+  isValid,
+  selectedBlockId: externalSelectedBlockId,
+  onBlockSelect,
+  editingBlockId: externalEditingBlockId,
+  onEditBlock,
+}) => {
+  // Use local state as fallback when external control is not provided
+  const [localEditingBlockId, setLocalEditingBlockId] = useState<string | null>(null);
+
+  // Prefer external control if provided
+  const editingBlockId = externalEditingBlockId !== undefined ? externalEditingBlockId : localEditingBlockId;
+  const setEditingBlockId = onEditBlock || setLocalEditingBlockId;
 
   const removeBlock = useCallback(
     (id: string) => {
@@ -232,7 +249,7 @@ export const Spine: React.FC<SpineProps> = ({ blocks, setBlocks, isValid }) => {
         setEditingBlockId(null);
       }
     },
-    [blocks, setBlocks, editingBlockId]
+    [blocks, setBlocks, editingBlockId, setEditingBlockId]
   );
 
   const updateBlockParams = useCallback(
@@ -245,8 +262,17 @@ export const Spine: React.FC<SpineProps> = ({ blocks, setBlocks, isValid }) => {
   );
 
   const handleEdit = useCallback((blockId: string) => {
-    setEditingBlockId((prev) => (prev === blockId ? null : blockId));
-  }, []);
+    setEditingBlockId((prev: string | null) => (prev === blockId ? null : blockId));
+  }, [setEditingBlockId]);
+
+  const handleBlockClick = useCallback((blockId: string) => {
+    // If external selection handler provided, use it
+    if (onBlockSelect) {
+      onBlockSelect(blockId);
+    }
+    // Always toggle edit mode on click
+    handleEdit(blockId);
+  }, [onBlockSelect, handleEdit]);
 
   // Simple block validation (can be enhanced)
   const isBlockValid = useCallback((block: LegoBlock): boolean => {

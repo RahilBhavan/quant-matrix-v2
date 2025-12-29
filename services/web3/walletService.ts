@@ -3,38 +3,21 @@
  */
 
 import { ethers } from 'ethers';
-
-const SEPOLIA_CHAIN_ID = 11155111;
-const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7';
-
-interface SepoliaNetworkConfig {
-  chainId: string;
-  chainName: string;
-  nativeCurrency: {
-    name: string;
-    symbol: string;
-    decimals: number;
-  };
-  rpcUrls: string[];
-  blockExplorerUrls: string[];
-}
-
-const SEPOLIA_CONFIG: SepoliaNetworkConfig = {
-  chainId: SEPOLIA_CHAIN_ID_HEX,
-  chainName: 'Sepolia Testnet',
-  nativeCurrency: {
-    name: 'Sepolia Ether',
-    symbol: 'ETH',
-    decimals: 18,
-  },
-  rpcUrls: ['https://rpc.sepolia.org'],
-  blockExplorerUrls: ['https://sepolia.etherscan.io'],
-};
+import {
+  ChainId,
+  ChainConfig,
+  CHAIN_CONFIGS,
+  getChainConfig,
+  getChainIdHex,
+  isSupportedChain,
+  DEFAULT_CHAIN_ID,
+} from './chainConfig';
 
 export class WalletService {
   private provider: ethers.BrowserProvider | null = null;
   private signer: ethers.Signer | null = null;
   private connectedAddress: string | null = null;
+  private currentChainId: ChainId | null = null;
 
   async connect(): Promise<string> {
     // Check if MetaMask is installed
@@ -63,9 +46,11 @@ export class WalletService {
       const network = await this.provider.getNetwork();
       const currentChainId = Number(network.chainId);
 
-      // Switch to Sepolia if not already on it
-      if (currentChainId !== SEPOLIA_CHAIN_ID) {
-        await this.switchToSepolia();
+      // Store current chain if supported, otherwise switch to default
+      if (isSupportedChain(currentChainId)) {
+        this.currentChainId = currentChainId as ChainId;
+      } else {
+        await this.switchChain(DEFAULT_CHAIN_ID);
       }
 
       // Set up account change listener
@@ -90,32 +75,47 @@ export class WalletService {
     }
   }
 
-  async switchToSepolia(): Promise<void> {
+  async switchChain(chainId: ChainId): Promise<void> {
     if (!window.ethereum) {
       throw new Error('MetaMask not found');
     }
 
+    const chainConfig = getChainConfig(chainId);
+    const chainIdHex = getChainIdHex(chainId);
+
     try {
-      // Try to switch to Sepolia
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: SEPOLIA_CHAIN_ID_HEX }],
+        params: [{ chainId: chainIdHex }],
       });
+      this.currentChainId = chainId;
     } catch (error: any) {
       // If network doesn't exist, add it
       if (error.code === 4902) {
         try {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
-            params: [SEPOLIA_CONFIG],
+            params: [{
+              chainId: chainIdHex,
+              chainName: chainConfig.name,
+              nativeCurrency: chainConfig.nativeCurrency,
+              rpcUrls: chainConfig.rpcUrls,
+              blockExplorerUrls: chainConfig.blockExplorerUrls,
+            }],
           });
+          this.currentChainId = chainId;
         } catch (addError) {
-          throw new Error('Failed to add Sepolia network to MetaMask');
+          throw new Error(`Failed to add ${chainConfig.name} to MetaMask`);
         }
       } else {
-        throw new Error(`Failed to switch to Sepolia: ${error.message}`);
+        throw new Error(`Failed to switch to ${chainConfig.name}: ${error.message}`);
       }
     }
+  }
+
+  // Legacy method for backwards compatibility
+  async switchToSepolia(): Promise<void> {
+    return this.switchChain(ChainId.SEPOLIA);
   }
 
   async disconnect(): Promise<void> {
@@ -150,9 +150,11 @@ export class WalletService {
   }
 
   async isOnSepolia(): Promise<boolean> {
-    if (!this.provider) return false;
-    const network = await this.getNetwork();
-    return network.chainId === SEPOLIA_CHAIN_ID;
+    return this.currentChainId === ChainId.SEPOLIA;
+  }
+
+  getCurrentChainId(): ChainId | null {
+    return this.currentChainId;
   }
 
   isConnected(): boolean {

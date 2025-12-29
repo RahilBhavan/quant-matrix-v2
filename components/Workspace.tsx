@@ -1,16 +1,21 @@
-import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HUD } from './HUD';
 import { Spine } from './Spine';
 import { ActionRibbon } from './ActionRibbon';
+import { CameraControls } from './CameraControls';
+import { StrategyMiniMap } from './StrategyMiniMap';
+import { BlockToolbar } from './BlockToolbar';
+import { AriaStrategyList } from './AriaStrategyList';
+import { StrategyPromptInput } from './StrategyPromptInput';
 
 // Lazy load heavy panels for better performance
 const BacktestPanel = lazy(() => import('./BacktestPanel').then(m => ({ default: m.BacktestPanel })));
 const StrategyLibrary = lazy(() => import('./StrategyLibrary').then(m => ({ default: m.StrategyLibrary })));
 const PriceChartPanel = lazy(() => import('./panels/PriceChartPanel').then(m => ({ default: m.PriceChartPanel })));
 const PortfolioPanel = lazy(() => import('./panels/PortfolioPanel').then(m => ({ default: m.PortfolioPanel })));
-import { AVAILABLE_BLOCKS, MOCK_MARKET_DATA } from '../constants';
+import { AVAILABLE_BLOCKS } from '../constants';
 import { LegoBlock, MatrixStatus, ExecutionContext, ValidationResult } from '../types';
 import { auditStrategy } from '../geminiService';
 import { usePortfolio } from '../context/PortfolioContext';
@@ -19,8 +24,6 @@ import { executeStrategy } from '../services/executionEngine';
 import { getQuote } from '../services/marketDataService';
 import { BrainCircuit, Play, ShieldAlert, AlertCircle } from 'lucide-react';
 
-// Pre-compute noise texture to avoid external network request and ensure instant load.
-const NOISE_BASE64 = `data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJub2lzZUZpbHRlciI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2VGaWx0ZXIpIiBvcGFjaXR5PSIwLjE1Ii8+PC9zdmc+`;
 
 export const Workspace: React.FC = () => {
   const [blocks, setBlocks] = useState<LegoBlock[]>([]);
@@ -31,7 +34,27 @@ export const Workspace: React.FC = () => {
   const [showStrategyLibrary, setShowStrategyLibrary] = useState(false);
   const [showPriceChart, setShowPriceChart] = useState(false);
   const [showPortfolioPanel, setShowPortfolioPanel] = useState(false);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [showAIPrompt, setShowAIPrompt] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100);
   const { state: portfolio, buyStock, sellStock } = usePortfolio();
+
+  // Selected block object
+  const selectedBlock = useMemo(
+    () => blocks.find(b => b.id === selectedBlockId) || null,
+    [blocks, selectedBlockId]
+  );
+
+  // Block positions for camera focus (simplified 2D layout)
+  const blockPositions = useMemo(() => {
+    const positions = new Map<string, { x: number; y: number; z: number }>();
+    blocks.forEach((block, index) => {
+      // Stack blocks vertically in the spine
+      positions.set(block.id, { x: 0, y: -index * 2, z: 0 });
+    });
+    return positions;
+  }, [blocks]);
 
   // Validate strategy whenever blocks change
   useEffect(() => {
@@ -53,6 +76,36 @@ export const Workspace: React.FC = () => {
 
     setBlocks(prev => [...prev, newBlock]);
     setAuditResult(null);
+    setSelectedBlockId(newBlock.id); // Auto-select newly added block
+  }, []);
+
+  // Duplicate block handler
+  const handleDuplicateBlock = useCallback((block: LegoBlock) => {
+    const newBlock: LegoBlock = {
+      ...block,
+      id: uuidv4(),
+      label: `${block.label} (Copy)`,
+    };
+    setBlocks(prev => [...prev, newBlock]);
+    setSelectedBlockId(newBlock.id);
+  }, []);
+
+  // Delete block handler
+  const handleDeleteBlock = useCallback((blockId: string) => {
+    setBlocks(prev => prev.filter(b => b.id !== blockId));
+    if (selectedBlockId === blockId) {
+      setSelectedBlockId(null);
+    }
+  }, [selectedBlockId]);
+
+  // Edit block handler
+  const handleEditBlock = useCallback((blockId: string) => {
+    setEditingBlockId(blockId);
+  }, []);
+
+  // Block selection handler
+  const handleBlockSelect = useCallback((blockId: string) => {
+    setSelectedBlockId(prev => prev === blockId ? null : blockId);
   }, []);
 
   const handleAudit = async () => {
@@ -136,6 +189,16 @@ export const Workspace: React.FC = () => {
     setShowStrategyLibrary(false);
   };
 
+  // Handle AI-generated blocks
+  const handleAIGenerate = useCallback((generatedBlocks: LegoBlock[]) => {
+    setBlocks(prev => [...prev, ...generatedBlocks]);
+    setAuditResult(null);
+    // Select the first generated block
+    if (generatedBlocks.length > 0) {
+      setSelectedBlockId(generatedBlocks[0].id);
+    }
+  }, []);
+
 
 
   return (
@@ -148,6 +211,9 @@ export const Workspace: React.FC = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
 
+      {/* Screen Reader Accessibility: Hidden semantic list */}
+      <AriaStrategyList blocks={blocks} selectedBlockId={selectedBlockId} />
+
       {/* Memoized HUD */}
       <HUD
         status={status}
@@ -158,10 +224,62 @@ export const Workspace: React.FC = () => {
         onOpenPortfolio={() => setShowPortfolioPanel(true)}
       />
 
-      {/* Main Workspace */}
-      <main className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+      {/* Strategy Mini-Map */}
+      <StrategyMiniMap
+        blocks={blocks}
+        selectedBlockId={selectedBlockId}
+        onBlockSelect={handleBlockSelect}
+      />
 
-        <Spine blocks={blocks} setBlocks={setBlocks} isValid={isValid} />
+      {/* Camera Controls */}
+      {/* Camera Controls */}
+      <CameraControls
+        selectedBlockId={selectedBlockId}
+        blockPositions={blockPositions}
+        zoomLevel={zoomLevel}
+        onZoomChange={setZoomLevel}
+      />
+
+      {/* Block Toolbar */}
+      <BlockToolbar
+        block={selectedBlock}
+        onDuplicate={handleDuplicateBlock}
+        onDelete={handleDeleteBlock}
+        onEdit={handleEditBlock}
+        onClose={() => setSelectedBlockId(null)}
+      />
+
+      {/* Main Workspace */}
+      <main
+        className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden"
+        onMouseDown={() => {
+          setSelectedBlockId(null);
+          setEditingBlockId(null);
+        }}
+      >
+        {/* Scalable Container for Zoom */}
+        <div
+          style={{
+            transform: `scale(${zoomLevel / 100})`,
+            transition: 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Spine
+            blocks={blocks}
+            setBlocks={setBlocks}
+            isValid={isValid}
+            selectedBlockId={selectedBlockId}
+            onBlockSelect={handleBlockSelect}
+            editingBlockId={editingBlockId}
+            onEditBlock={setEditingBlockId}
+          />
+        </div>
+
 
         {/* Execution Controls */}
         <AnimatePresence>
@@ -257,6 +375,13 @@ export const Workspace: React.FC = () => {
       {/* Memoized Action Ribbon */}
       <ActionRibbon onAddBlock={handleAddBlock} />
 
+      {/* AI Strategy Prompt */}
+      <StrategyPromptInput
+        isExpanded={showAIPrompt}
+        onToggle={() => setShowAIPrompt(prev => !prev)}
+        onGenerate={handleAIGenerate}
+      />
+
       {/* Lazy-loaded Panels with Suspense */}
       <Suspense fallback={null}>
         {showBacktestPanel && (
@@ -296,6 +421,6 @@ export const Workspace: React.FC = () => {
           />
         )}
       </Suspense>
-    </div>
+    </div >
   );
 };

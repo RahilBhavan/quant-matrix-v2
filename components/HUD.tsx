@@ -2,7 +2,14 @@ import React, { useEffect, useState, memo } from 'react';
 import { MarketData, MatrixStatus } from '../types';
 import { usePortfolio } from '../context/PortfolioContext';
 import { walletService } from '../services/web3/walletService';
+import { ChainId } from '../services/web3/chainConfig';
 import { ethers } from 'ethers';
+import { isMarketOpen } from '../services/marketDataService';
+import { useAccessibilitySafe } from '../context/AccessibilityContext';
+import { Zap, ZapOff } from 'lucide-react';
+import { MevProtectionToggle } from './MevProtectionToggle';
+import { ChainSelector } from './ChainSelector';
+import { MarketMoment } from './MarketMoment';
 
 interface HUDProps {
   status: MatrixStatus;
@@ -15,12 +22,14 @@ interface HUDProps {
 
 export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktest, onOpenLibrary, onOpenPriceChart, onOpenPortfolio }) => {
   const { state: portfolio } = usePortfolio();
+  const { reduceMotion, highContrast, toggleReduceMotion, toggleHighContrast } = useAccessibilitySafe();
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string>('0');
   const [networkName, setNetworkName] = useState<string>('');
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentChainId, setCurrentChainId] = useState<ChainId | null>(null);
 
   useEffect(() => {
     // Check if wallet is already connected
@@ -38,6 +47,13 @@ export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktes
 
     checkConnection();
   }, []);
+
+  // Update chain state when wallet connects
+  useEffect(() => {
+    if (isConnected) {
+      setCurrentChainId(walletService.getCurrentChainId());
+    }
+  }, [isConnected]);
 
   const updateBalance = async (address: string) => {
     try {
@@ -100,38 +116,40 @@ export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktes
 
   return (
     <>
-      {/* Top Left: Identity */}
+      {/* Top Left: Identity (PRD §3.1) */}
       <div className="fixed top-6 left-8 z-50 pointer-events-none">
-        <h1 className="font-sans font-black text-2xl tracking-tighter leading-none hover:animate-glitch pointer-events-auto cursor-default">
-          QUANT MATRIX<br />
-          <span className="text-xs font-mono font-normal tracking-widest opacity-60">
-            DEFI_BUILDER_v2
-          </span>
+        <h1 className="font-sans font-bold text-lg tracking-[0.15em] leading-none pointer-events-auto cursor-default uppercase">
+          QUANT MATRIX
+          <span className="ml-2 text-[10px] font-mono font-normal opacity-50">[BETA]</span>
         </h1>
       </div>
 
-      {/* Top Right: Wallet Connection */}
-      <div className="fixed top-6 right-8 z-50 text-right font-mono text-xs space-y-1">
+      {/* Top Right: Market Moment + Wallet (PRD §3.2) */}
+      <div className="fixed top-6 right-8 z-50 text-right font-mono text-xs space-y-3">
+        {/* Market Moment Ticker */}
+        <MarketMoment className="justify-end" />
+
+        {/* Wallet Connection */}
         {!isConnected ? (
           <button
             onClick={handleConnect}
             disabled={isConnecting}
             className={`
-              px-4 py-2 border transition-all pointer-events-auto
+              px-4 py-2 border border-white/40 transition-all pointer-events-auto uppercase tracking-widest
               ${isConnecting
-                ? 'border-white/30 text-white/30 cursor-wait'
-                : 'border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-black cursor-pointer'
+                ? 'opacity-30 cursor-wait'
+                : 'hover:bg-white hover:text-black cursor-pointer'
               }
             `}
           >
-            {isConnecting ? 'CONNECTING...' : 'CONNECT_WALLET'}
+            {isConnecting ? 'CONNECTING...' : 'CONNECT'}
           </button>
         ) : (
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto space-y-1">
             <div className="flex items-center justify-end gap-2">
-              <span className="opacity-50">WALLET</span>
+              <span className="opacity-50 uppercase tracking-widest">WALLET</span>
               <span
-                className="font-bold text-cyan-500 cursor-pointer hover:opacity-70"
+                className="font-bold cursor-pointer hover:underline"
                 onClick={handleDisconnect}
                 title="Click to disconnect"
               >
@@ -146,9 +164,19 @@ export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktes
             </div>
             <div className="flex items-center justify-end gap-2 mt-1">
               <span className="opacity-50">NETWORK</span>
-              <span className={`font-bold ${networkName === 'sepolia' ? 'text-green-500' : 'text-yellow-500'}`}>
-                {networkName.toUpperCase()}
-              </span>
+              <ChainSelector
+                currentChainId={currentChainId}
+                onChainSelect={async (chainId) => {
+                  await walletService.switchChain(chainId);
+                  setCurrentChainId(chainId);
+                  if (walletAddress) updateBalance(walletAddress);
+                }}
+                showTestnets={true}
+              />
+            </div>
+            {/* MEV Protection Toggle */}
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <MevProtectionToggle />
             </div>
           </div>
         )}
@@ -161,60 +189,71 @@ export const HUD: React.FC<HUDProps> = memo(({ status, marketData, onOpenBacktes
         )}
       </div>
 
-      {/* Bottom Left: Navigation */}
-      <div className="fixed bottom-32 left-8 z-50 hidden md:flex flex-col gap-2 font-mono text-xs opacity-80">
+      {/* Bottom Left: Navigation (PRD §3.3) */}
+      <div className="fixed bottom-32 left-8 z-50 hidden md:flex flex-col gap-2 font-mono text-xs">
         <div className="flex items-center gap-2 text-white font-bold">
-          <span className="w-2 h-2 bg-white"></span>
-          [01] WORKSPACE
+          <span className="w-1.5 h-1.5 bg-white" />
+          <span className="uppercase tracking-widest">[01] WORKSPACE</span>
         </div>
-        <div
+        <button
           onClick={onOpenBacktest}
-          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+          className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity text-left group"
         >
-          <span className="w-2 h-2 border border-white"></span>
-          [02] BACKTEST
-        </div>
-        <div
+          <span className="w-1.5 h-1.5 border border-white/50 group-hover:border-white" />
+          <span className="uppercase tracking-widest group-hover:underline">[02] BACKTEST</span>
+        </button>
+        <button
           onClick={onOpenLibrary}
-          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+          className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity text-left group"
         >
-          <span className="w-2 h-2 border border-white"></span>
-          [03] LIBRARY
-        </div>
-        <div
+          <span className="w-1.5 h-1.5 border border-white/50 group-hover:border-white" />
+          <span className="uppercase tracking-widest group-hover:underline">[03] LIBRARY</span>
+        </button>
+        <button
           onClick={onOpenPriceChart}
-          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+          className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity text-left group"
         >
-          <span className="w-2 h-2 border border-white"></span>
-          [04] PRICE_CHART
-        </div>
-        <div
+          <span className="w-1.5 h-1.5 border border-white/50 group-hover:border-white" />
+          <span className="uppercase tracking-widest group-hover:underline">[04] CHARTS</span>
+        </button>
+        <button
           onClick={onOpenPortfolio}
-          className="flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer interactive-zone"
+          className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity text-left group"
         >
-          <span className="w-2 h-2 border border-white"></span>
-          [05] PORTFOLIO
-        </div>
+          <span className="w-1.5 h-1.5 border border-white/50 group-hover:border-white" />
+          <span className="uppercase tracking-widest group-hover:underline">[05] PORTFOLIO</span>
+        </button>
       </div>
 
-      {/* Bottom Right: System Status */}
-      <div className="fixed bottom-32 right-8 z-50 text-right font-mono text-xs pointer-events-none">
+      {/* Bottom Right: System Status (PRD - white indicators only) */}
+      <div className="fixed bottom-32 right-8 z-50 text-right font-mono text-xs pointer-events-none space-y-1">
         <div className="flex items-center justify-end gap-2">
-          <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'
-            }`}></span>
-          <span className="uppercase">WALLET: {isConnected ? 'CONNECTED' : 'DISCONNECTED'}</span>
+          <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-white' : 'border border-white/50'}`} />
+          <span className="uppercase tracking-widest opacity-70">WALLET: {isConnected ? 'CONNECTED' : 'DISCONNECTED'}</span>
         </div>
-        <div className="flex items-center justify-end gap-2 mt-1">
-          <span className={`w-2 h-2 rounded-full ${status === 'OPTIMAL' ? 'bg-green-500' :
-              status === 'CRITICAL' ? 'bg-red-500' : 'bg-white'
-            } animate-pulse`}></span>
-          <span className="uppercase">SYSTEM: {status}</span>
+        <div className="flex items-center justify-end gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${status === 'OPTIMAL' || status === 'EXECUTING' ? 'bg-white' : 'border border-white/50'}`} />
+          <span className="uppercase tracking-widest opacity-70">SYSTEM: {status}</span>
         </div>
         {isConnected && networkName && (
-          <div className="opacity-50 mt-1">
-            CHAIN: {networkName.toUpperCase()}
+          <div className="flex items-center justify-end gap-2 opacity-50">
+            <span className="uppercase tracking-widest">CHAIN: {networkName.toUpperCase()}</span>
           </div>
         )}
+
+        {/* Accessibility Toggle */}
+        <div className="mt-4 pt-2 border-t border-white/20 pointer-events-auto flex gap-2 justify-end">
+          <button
+            onClick={toggleReduceMotion}
+            className={`p-1.5 border transition-all ${reduceMotion ? 'border-white bg-white text-black' : 'border-white/20 hover:border-white'
+              }`}
+            title={reduceMotion ? 'Enable animations' : 'Reduce motion'}
+            aria-pressed={reduceMotion}
+            aria-label="Toggle reduced motion"
+          >
+            {reduceMotion ? <ZapOff size={12} /> : <Zap size={12} />}
+          </button>
+        </div>
       </div>
     </>
   );

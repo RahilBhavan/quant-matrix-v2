@@ -8,6 +8,7 @@
 import { LegoBlock } from '../types';
 import { walletService } from './web3/walletService';
 import { contractService, TOKENS } from './web3/contractService';
+import { parseBlockchainError, formatErrorForUI } from './web3/errorParser';
 import { ethers } from 'ethers';
 
 export interface ExecutionTransaction {
@@ -17,6 +18,7 @@ export interface ExecutionTransaction {
   status: 'PENDING' | 'CONFIRMING' | 'SUCCESS' | 'FAILED';
   txHash?: string;
   error?: string;
+  errorSuggestion?: string; // User-friendly suggestion
   timestamp: Date;
   details: any;
   gasCost?: string; // ETH
@@ -90,11 +92,14 @@ class LiveExecutionService {
           };
       }
     } catch (error: any) {
+      // Parse blockchain error into human-readable message
+      const { message, suggestion } = formatErrorForUI(error);
       transaction.status = 'FAILED';
-      transaction.error = error.message || 'Unknown error';
+      transaction.error = message;
+      transaction.errorSuggestion = suggestion || undefined;
       return {
         success: false,
-        error: transaction.error,
+        error: message,
         transaction,
       };
     }
@@ -146,9 +151,11 @@ class LiveExecutionService {
         transaction,
       };
     } catch (error: any) {
+      const { message, suggestion } = formatErrorForUI(error);
       transaction.status = 'FAILED';
-      transaction.error = error.message;
-      throw error;
+      transaction.error = message;
+      transaction.errorSuggestion = suggestion || undefined;
+      throw new Error(message);
     }
   }
 
@@ -192,9 +199,11 @@ class LiveExecutionService {
         transaction,
       };
     } catch (error: any) {
+      const { message, suggestion } = formatErrorForUI(error);
       transaction.status = 'FAILED';
-      transaction.error = error.message;
-      throw error;
+      transaction.error = message;
+      transaction.errorSuggestion = suggestion || undefined;
+      throw new Error(message);
     }
   }
 
@@ -239,9 +248,11 @@ class LiveExecutionService {
         transaction,
       };
     } catch (error: any) {
+      const { message, suggestion } = formatErrorForUI(error);
       transaction.status = 'FAILED';
-      transaction.error = error.message;
-      throw error;
+      transaction.error = message;
+      transaction.errorSuggestion = suggestion || undefined;
+      throw new Error(message);
     }
   }
 
@@ -286,9 +297,11 @@ class LiveExecutionService {
         transaction,
       };
     } catch (error: any) {
+      const { message, suggestion } = formatErrorForUI(error);
       transaction.status = 'FAILED';
-      transaction.error = error.message;
-      throw error;
+      transaction.error = message;
+      transaction.errorSuggestion = suggestion || undefined;
+      throw new Error(message);
     }
   }
 

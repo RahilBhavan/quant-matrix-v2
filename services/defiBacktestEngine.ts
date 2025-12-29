@@ -8,6 +8,7 @@
 import { LegoBlock } from '../types';
 import { uniswapService } from './subgraph/uniswapService';
 import { aaveService } from './subgraph/aaveService';
+import { historicalDataService } from './historicalDataService';
 
 // DeFi-specific types
 export interface DeFiBacktestConfig {
@@ -132,11 +133,19 @@ export async function runDeFiBacktest(
 
   console.log(`Running backtest over ${timestamps.length} periods`);
 
+  // Pre-fetch historical data for the entire backtest period
+  const tokensInStrategy = extractTokensFromBlocks(blocks);
+  try {
+    await historicalDataService.prefetchData(startDate, endDate, tokensInStrategy);
+    console.log('[DeFiBacktest] Historical data prefetched successfully');
+  } catch (error) {
+    console.warn('[DeFiBacktest] Failed to prefetch historical data, using fallbacks:', error);
+  }
+
   // Execute strategy at each timestamp
   for (const timestamp of timestamps) {
-    // Get historical prices at this timestamp
-    // For now, use mock prices - in production, query subgraph
-    const prices = await getMockPricesAtTimestamp(timestamp);
+    // Get historical prices at this timestamp using real subgraph data
+    const prices = historicalDataService.getPricesAtTimestamp(timestamp);
 
     // Execute strategy blocks
     for (const block of blocks) {
@@ -434,23 +443,39 @@ function calculatePortfolioValue(
 }
 
 /**
- * Get Aave APY at specific timestamp (mock for now)
+ * Get Aave APY at specific timestamp using historical subgraph data
  */
 async function getAaveAPY(asset: string, timestamp: Date): Promise<number> {
-  // Mock APY - in production, query from aaveService
-  return 5.2; // 5.2% APY
+  try {
+    const apyData = historicalDataService.getAPYAtTimestamp(asset, timestamp);
+    return apyData.supplyAPY;
+  } catch (error) {
+    console.warn(`Failed to get APY for ${asset}, using fallback:`, error);
+    return 5.2; // Fallback APY
+  }
 }
 
 /**
- * Get mock prices at timestamp (for testing)
+ * Extract all tokens used in strategy blocks
  */
-async function getMockPricesAtTimestamp(timestamp: Date): Promise<Map<string, number>> {
-  return new Map([
-    ['USDC', 1.0],
-    ['WETH', 2000 + Math.random() * 100], // Random walk around $2000
-    ['DAI', 1.0],
-    ['USDT', 1.0],
-  ]);
+function extractTokensFromBlocks(blocks: LegoBlock[]): string[] {
+  const tokens = new Set<string>();
+
+  for (const block of blocks) {
+    const params = block.params || {};
+
+    if (params.tokenIn) tokens.add(params.tokenIn);
+    if (params.tokenOut) tokens.add(params.tokenOut);
+    if (params.asset) tokens.add(params.asset);
+    if (params.token0) tokens.add(params.token0);
+    if (params.token1) tokens.add(params.token1);
+  }
+
+  // Always include common tokens
+  tokens.add('USDC');
+  tokens.add('WETH');
+
+  return Array.from(tokens);
 }
 
 /**

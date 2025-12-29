@@ -131,6 +131,17 @@ export const AVAILABLE_BLOCKS: Omit<LegoBlock, 'id'>[] = [
       threshold: 50,
     },
   },
+  {
+    type: 'MEV_PROTECTION',
+    protocol: Protocol.LOGIC,
+    label: 'MEV Protection',
+    description: 'Enable Flashbots RPC for private transactions',
+    color: PROTOCOL_COLORS[Protocol.LOGIC],
+    params: {
+      useFlashbots: true,
+      privateTransaction: true,
+    },
+  },
 
   // ===== RISK MANAGEMENT BLOCKS =====
   {
@@ -163,65 +174,70 @@ export const TOKEN_ADDRESSES = {
   USDT: '0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0',
 } as const;
 
-// Block metadata for UI
+// Block metadata for UI (PRD: no emojis, use text symbols)
 export const BLOCK_METADATA = {
   UNISWAP_SWAP: {
-    icon: '🔄',
+    icon: '↔',
     category: 'DEX Trading',
     requiredParams: ['tokenIn', 'tokenOut', 'amount'],
   },
   PRICE_CHECK: {
-    icon: '💹',
+    icon: '$',
     category: 'DEX Trading',
     requiredParams: ['tokenIn', 'tokenOut'],
   },
   CREATE_LP_POSITION: {
-    icon: '💧',
+    icon: '+',
     category: 'Liquidity',
     requiredParams: ['token0', 'token1', 'feeTier'],
   },
   COLLECT_FEES: {
-    icon: '💰',
+    icon: '◎',
     category: 'Liquidity',
     requiredParams: [],
   },
   AAVE_SUPPLY: {
-    icon: '📥',
+    icon: '↓',
     category: 'Lending',
     requiredParams: ['asset', 'supplyAmount'],
   },
   AAVE_BORROW: {
-    icon: '📤',
+    icon: '↑',
     category: 'Lending',
     requiredParams: ['asset', 'borrowAmount'],
   },
   REPAY_DEBT: {
-    icon: '💸',
+    icon: '←',
     category: 'Lending',
     requiredParams: ['asset', 'amount'],
   },
   HEALTH_FACTOR_CHECK: {
-    icon: '❤️',
+    icon: '♥',
     category: 'Lending',
     requiredParams: ['threshold'],
   },
   IF_CONDITION: {
-    icon: '❓',
+    icon: '?',
     category: 'Logic',
     requiredParams: ['condition'],
   },
   GAS_CHECKER: {
-    icon: '⛽',
+    icon: '⚙',
     category: 'Logic',
     requiredParams: ['threshold'],
   },
+  MEV_PROTECTION: {
+    icon: '■',
+    category: 'DEX Trading',
+    requiredParams: ['useFlashbots'],
+  },
   STOP_LOSS: {
-    icon: '🛑',
+    icon: '×',
     category: 'Risk',
     requiredParams: ['threshold'],
   },
   POSITION_SIZE: {
-    icon: '📊',
+    icon: '%',
     category: 'Risk',
     requiredParams: ['percentage'],
   },

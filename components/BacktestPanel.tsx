@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, TrendingUp, TrendingDown, Activity, DollarSign, Target, Zap, Cuboid, BarChart3 } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, Activity, DollarSign, Target, Zap, Cuboid, BarChart3, Loader2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { LegoBlock, BacktestConfig, BacktestResult } from '../types';
-import { runBacktest } from '../services/backtestEngine';
+import { useBacktestWorker } from '../hooks/useBacktestWorker';
 import { saveBacktestResult } from '../services/persistenceService';
 import { EquityCurve3D } from './visualizations/EquityCurve3D';
 import { ThreeSceneProvider } from './three/ThreeScene';
@@ -15,6 +15,21 @@ interface BacktestPanelProps {
   blocks: LegoBlock[];
 }
 
+// Progress phases for backtest simulation
+const PROGRESS_PHASES = [
+  { step: 1, message: 'Loading historical data...', percent: 15 },
+  { step: 2, message: 'Calculating indicators...', percent: 35 },
+  { step: 3, message: 'Simulating trades...', percent: 60 },
+  { step: 4, message: 'Computing metrics...', percent: 85 },
+  { step: 5, message: 'Rendering results...', percent: 100 },
+];
+
+interface ProgressState {
+  step: number;
+  message: string;
+  percent: number;
+}
+
 export const BacktestPanel: React.FC<BacktestPanelProps> = ({ isOpen, onClose, blocks }) => {
   // Configuration state
   const [symbol, setSymbol] = useState('AAPL');
@@ -22,49 +37,43 @@ export const BacktestPanel: React.FC<BacktestPanelProps> = ({ isOpen, onClose, b
   const [endDate, setEndDate] = useState('2024-12-31');
   const [initialCapital, setInitialCapital] = useState(100000);
 
-  // Backtest state
-  const [isRunning, setIsRunning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<BacktestResult | null>(null);
+  // Use Web Worker for backtest
+  const { run, cancel, isRunning, progress, result, error } = useBacktestWorker();
+
+  // 3D view toggle
   const [view3D, setView3D] = useState(false);
 
-  const handleRunBacktest = async () => {
-    if (blocks.length === 0) {
-      setError('No blocks in strategy');
-      return;
-    }
-
-    setIsRunning(true);
-    setError(null);
-    setResult(null);
-
-    try {
-      const config: BacktestConfig = {
-        symbol,
-        startDate,
-        endDate,
-        initialCapital,
-        blocks,
-      };
-
-      const backtestResult = await runBacktest(config);
-      setResult(backtestResult);
-
-      // Save result to LocalStorage
+  // Save result when backtest completes
+  useEffect(() => {
+    if (result) {
       try {
         saveBacktestResult({
-          strategyId: 'current', // In Phase 3, use actual strategy ID
-          config,
-          result: backtestResult,
+          strategyId: 'current',
+          config: { symbol, startDate, endDate, initialCapital, blocks },
+          result,
         });
       } catch (saveError) {
         console.error('Failed to save backtest result:', saveError);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Backtest failed');
-    } finally {
-      setIsRunning(false);
     }
+  }, [result, symbol, startDate, endDate, initialCapital, blocks]);
+
+  const handleRunBacktest = () => {
+    if (blocks.length === 0) return;
+
+    const config: BacktestConfig = {
+      symbol,
+      startDate,
+      endDate,
+      initialCapital,
+      blocks,
+    };
+
+    run(config); // Non-blocking worker call
+  };
+
+  const handleCancel = () => {
+    cancel();
   };
 
   const formatCurrency = (val: number) =>
@@ -155,14 +164,49 @@ export const BacktestPanel: React.FC<BacktestPanelProps> = ({ isOpen, onClose, b
                   </div>
                 </div>
 
-                {/* Run Button */}
-                <button
-                  onClick={handleRunBacktest}
-                  disabled={isRunning || blocks.length === 0}
-                  className="w-full bg-white text-black font-bold py-3 hover:bg-qm-neon-cyan transition-colors disabled:opacity-30 disabled:cursor-not-allowed interactive-zone"
-                >
-                  {isRunning ? 'RUNNING...' : 'RUN_BACKTEST'}
-                </button>
+                {/* Run Button / Progress Bar */}
+                {!isRunning ? (
+                  <button
+                    onClick={handleRunBacktest}
+                    disabled={blocks.length === 0}
+                    className="w-full bg-white text-black font-bold py-3 hover:bg-qm-neon-cyan transition-colors disabled:opacity-30 disabled:cursor-not-allowed interactive-zone"
+                  >
+                    RUN_BACKTEST
+                  </button>
+                ) : (
+                  <div className="space-y-3">
+                    {/* Progress Bar */}
+                    <div className="relative h-2 bg-white/10 overflow-hidden">
+                      <motion.div
+                        className="absolute inset-y-0 left-0 bg-qm-neon-cyan"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress.percent}%` }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                      />
+                    </div>
+
+                    {/* Status Message */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Loader2 size={12} className="animate-spin text-qm-neon-cyan" />
+                        <span className="font-mono text-xs text-white/80">
+                          {progress.message}
+                        </span>
+                      </div>
+                      <span className="font-mono text-[10px] text-white/50">
+                        {progress.percent}%
+                      </span>
+                    </div>
+
+                    {/* Cancel Button */}
+                    <button
+                      onClick={handleCancel}
+                      className="w-full border border-white/20 text-white/60 hover:text-white hover:border-white py-2 font-mono text-xs transition-colors interactive-zone"
+                    >
+                      CANCEL
+                    </button>
+                  </div>
+                )}
 
                 {error && (
                   <div className="border border-red-500 p-3 bg-red-500/10">
