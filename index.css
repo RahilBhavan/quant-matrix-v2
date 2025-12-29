@@ -2,13 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== PRD DESIGN TOKENS (FRAME VS. MATRIX) ===== */
+/* ===== PRD BRUTALIST DESIGN TOKENS ===== */
 :root {
-  /* The Frame: UI Elements */
-  --qm-void: #000000;
-  --qm-stark: #FFFFFF;
+  /* Canvas: Warm Off-White */
+  --qm-canvas: #FAFAF8;
+  /* Ink: Near Black */
+  --qm-ink: #0A0A0A;
 
-  /* The Matrix: Data Colors Only */
+  /* Matrix Data Colors */
   --qm-neon-cyan: #00FFFF;
   --qm-magma-red: #FF4444;
   --qm-acid-green: #00FF9D;
@@ -20,13 +21,15 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background: var(--qm-void);
-  color: var(--qm-stark);
+  background: var(--qm-canvas);
+  color: var(--qm-ink);
+  font-family: 'IBM Plex Mono', monospace;
+  /* Default to mono for brutalist feel */
 }
 
 /* ===== ACCESSIBILITY UTILITIES ===== */
 
-/* Screen reader only - visually hidden but accessible */
+/* Screen reader only */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -39,7 +42,7 @@ body {
   border: 0;
 }
 
-/* Skip to main content link */
+/* Skip link */
 .skip-link {
   position: absolute;
   top: -40px;
@@ -56,7 +59,6 @@ body {
 
 /* ===== REDUCED MOTION ===== */
 
-/* System preference: reduced motion */
 @media (prefers-reduced-motion: reduce) {
 
   *,
@@ -66,51 +68,5 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-}
-
-/* User toggle: reduced motion class */
-.reduce-motion *,
-.reduce-motion *::before,
-.reduce-motion *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
-}
-
-/* Disable glitch animation in reduced motion */
-.reduce-motion .animate-glitch,
-.reduce-motion [class*="animate-"] {
-  animation: none !important;
-}
-
-/* ===== HIGH CONTRAST MODE ===== */
-
-/* Increase opacity for metadata text in high contrast */
-.high-contrast .opacity-40,
-.high-contrast .opacity-50 {
-  opacity: 0.85 !important;
-}
-
-.high-contrast .opacity-60 {
-  opacity: 0.9 !important;
-}
-
-/* Stronger borders in high contrast */
-.high-contrast [class*="border-white/"] {
-  border-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-/* ===== IMPROVED DEFAULT CONTRAST ===== */
-
-/* Base improvements: minimum opacity 0.7 for important text */
-@layer utilities {
-  .text-meta {
-    @apply opacity-75;
-  }
-
-  .text-meta-dim {
-    @apply opacity-70;
   }
 }
