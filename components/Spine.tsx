@@ -123,8 +123,8 @@ const BlockCard: React.FC<{
   isBlockValid,
   totalBlocks,
 }) => {
-    const protocolColor = PROTOCOL_COLORS[block.protocol];
-    const ProtocolIcon = PROTOCOL_ICONS[block.protocol];
+    const protocolColor = PROTOCOL_COLORS[block.protocol] || '#FFFFFF';
+    const ProtocolIcon = PROTOCOL_ICONS[block.protocol] || AlertCircle;
 
     return (
       <div className="relative">
