@@ -35,7 +35,11 @@ interface SpineProps {
 }
 
 // Protocol color mapping
+// Protocol color mapping
 const PROTOCOL_COLORS: Record<Protocol, string> = {
+  [Protocol.UNISWAP]: '#FF007A',
+  [Protocol.AAVE]: '#B6509E',
+  [Protocol.COMPOUND]: '#00D395',
   [Protocol.ENTRY]: '#00FF9D',
   [Protocol.EXIT]: '#FF4444',
   [Protocol.ORDERS]: '#8247E5',
@@ -46,6 +50,9 @@ const PROTOCOL_COLORS: Record<Protocol, string> = {
 
 // Protocol icon mapping
 const PROTOCOL_ICONS: Record<Protocol, React.ElementType> = {
+  [Protocol.UNISWAP]: Activity, // TODO: Replace with specific icon if available
+  [Protocol.AAVE]: Shield,
+  [Protocol.COMPOUND]: TrendingUp,
   [Protocol.ENTRY]: TrendingUp,
   [Protocol.EXIT]: TrendingDown,
   [Protocol.ORDERS]: FileText,

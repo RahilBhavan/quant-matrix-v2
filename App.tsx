@@ -8,12 +8,16 @@ import { Typography } from './components/ui';
 import { PortfolioProvider } from './context/PortfolioContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 
+// import { CategoryTabs } from './components/workspace'; // Removed unused import
+import { Protocol } from './types';
+
 type ViewState = 'LANDING' | 'WORKSPACE';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('LANDING');
   const [currentView, setCurrentView] = useState<'workspace' | 'backtest' | 'portfolio' | 'optimize'>('workspace');
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<Protocol | null>(Protocol.UNISWAP);
 
   const enterMatrix = () => {
     setView('WORKSPACE');
@@ -75,15 +79,17 @@ const App: React.FC = () => {
                 currentView={currentView}
                 centerContent={
                   currentView === 'workspace' ? (
-                    <div className="flex gap-2">
-                    </div>
+                    <CategoryTabs
+                      activeCategory={activeCategory}
+                      onSelectCategory={setActiveCategory}
+                    />
                   ) : null
                 }
               />
 
               {/* Main content area - offset for fixed header */}
               <main className="pt-[60px]">
-                <Workspace />
+                <Workspace activeCategory={activeCategory} />
               </main>
             </motion.div>
           )}

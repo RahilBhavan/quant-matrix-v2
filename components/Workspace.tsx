@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, lazy, Suspense, useMemo } from
 import { v4 as uuidv4 } from 'uuid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Spine } from './Spine';
-import { ActionRibbon } from './ActionRibbon';
+import { BlockPalette } from './workspace/BlockPalette';
 import { CameraControls } from './CameraControls';
 import { StrategyMiniMap } from './StrategyMiniMap';
 import { BlockToolbar } from './BlockToolbar';
@@ -15,7 +15,7 @@ const StrategyLibrary = lazy(() => import('./StrategyLibrary').then(m => ({ defa
 const PriceChartPanel = lazy(() => import('./panels/PriceChartPanel').then(m => ({ default: m.PriceChartPanel })));
 const PortfolioPanel = lazy(() => import('./panels/PortfolioPanel').then(m => ({ default: m.PortfolioPanel })));
 import { AVAILABLE_BLOCKS } from '../constants';
-import { LegoBlock, MatrixStatus, ExecutionContext, ValidationResult } from '../types';
+import { LegoBlock, MatrixStatus, ExecutionContext, ValidationResult, Protocol } from '../types';
 import { auditStrategy } from '../geminiService';
 import { usePortfolio } from '../context/PortfolioContext';
 import { validateStrategy } from '../services/strategyValidator';
@@ -23,8 +23,11 @@ import { executeStrategy } from '../services/executionEngine';
 import { getQuote } from '../services/marketDataService';
 import { BrainCircuit, Play, ShieldAlert, AlertCircle } from 'lucide-react';
 
+interface WorkspaceProps {
+  activeCategory?: Protocol | null;
+}
 
-export const Workspace: React.FC = () => {
+export const Workspace: React.FC<WorkspaceProps> = ({ activeCategory = null }) => {
   const [blocks, setBlocks] = useState<LegoBlock[]>([]);
   const [status, setStatus] = useState<MatrixStatus>('IDLE');
   const [auditResult, setAuditResult] = useState<string | null>(null);
@@ -358,8 +361,12 @@ export const Workspace: React.FC = () => {
 
       </main>
 
-      {/* Memoized Action Ribbon */}
-      <ActionRibbon onAddBlock={handleAddBlock} />
+      {/* Block Palette */}
+      <BlockPalette
+        activeCategory={activeCategory}
+        onAddBlock={handleAddBlock}
+        onDragStart={() => { }} // Placeholder for now
+      />
 
       {/* AI Strategy Prompt */}
       <StrategyPromptInput
