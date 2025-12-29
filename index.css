@@ -32,7 +32,7 @@
   --spacing-5: 72px;
   --spacing-6: 96px;
 
-  /* Text Sizes */
+  /* Text Sizes (as variables for utilities) */
   --text-h1: 24px;
   --text-h1--line-height: 1.2;
   --text-h1--font-weight: 700;
@@ -58,58 +58,102 @@
   --text-data--font-weight: 500;
 }
 
-/* Global Styles */
-body {
-  background-color: var(--color-canvas);
-  color: var(--color-ink);
-  font-family: var(--font-mono);
-  margin: 0;
-  padding: 0;
+/* Global Reset */
+* {
+  border-radius: 0 !important;
   box-sizing: border-box;
 }
 
-/* Brutalist Reset */
-* {
-  border-radius: 0 !important;
-}
-
-/* Screen reader only */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  margin: 0;
   padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Skip link */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: #000;
-  color: #fff;
-  padding: 8px;
-  z-index: 100;
+/* Typography Utilities */
+@utility text-h1 {
+  @apply uppercase tracking-wider;
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  font-weight: var(--text-h1--font-weight);
 }
 
-.skip-link:focus {
-  top: 0;
+@utility text-h2 {
+  @apply uppercase;
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+  font-weight: var(--text-h2--font-weight);
 }
 
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
+@utility text-h3 {
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+  font-weight: var(--text-h3--font-weight);
+}
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+@utility text-data {
+  @apply font-mono;
+  font-size: var(--text-data);
+  line-height: var(--text-data--line-height);
+  font-weight: var(--text-data--font-weight);
+}
+
+/* Button Styles */
+@utility btn-primary {
+  @apply bg-ink text-white uppercase font-bold h-[50px] px-6 cursor-pointer;
+  @apply hover:bg-orange transition-all duration-100;
+}
+
+@utility btn-secondary {
+  @apply bg-white border border-ink text-ink uppercase font-bold h-[50px] px-6 cursor-pointer;
+  @apply hover:bg-ink hover:text-white transition-all duration-100;
+}
+
+@utility btn-disabled {
+  @apply bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300 hover:text-gray-500;
+}
+
+/* Inputs */
+@utility input-base {
+  @apply border-b border-gray-300 bg-transparent px-0 py-2 font-mono;
+  @apply focus:border-b-2 focus:border-ink outline-none;
+}
+
+/* Cards & Modals */
+@utility card {
+  @apply bg-white border border-gray-300;
+}
+
+@utility card-header {
+  @apply bg-gray-100 px-3 py-2 border-b border-gray-300 flex items-center justify-between;
+}
+
+@utility modal-backdrop {
+  @apply fixed inset-0 bg-canvas/95 z-50;
+}
+
+@utility modal-window {
+  @apply bg-white border-2 border-ink max-w-[600px] p-6;
+}
+
+/* Helpers */
+@utility dot-grid {
+  background-image: radial-gradient(circle, #E0E0E0 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@utility text-error {
+  color: var(--color-error);
+}
+
+@utility text-success {
+  color: var(--color-success);
+}
+
+@utility border-error {
+  border-color: var(--color-error);
 }

@@ -26,9 +26,12 @@ export const Typography: React.FC<TypographyProps> = ({
     data: 'text-data',
   };
 
+  // Safe access for mapped variants that might not strictly match HTML tags
+  const ComponentToRender = Component as any;
+
   const classes = `${baseClasses[variant]} ${uppercase ? 'uppercase' : ''} ${className}`;
 
-  return <Component className={classes}>{children}</Component>;
+  return <ComponentToRender className={classes}>{children}</ComponentToRender>;
 };
 
 interface DataTextProps {
