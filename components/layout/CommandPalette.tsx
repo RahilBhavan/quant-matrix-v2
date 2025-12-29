@@ -35,18 +35,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     }
   }, [isOpen]);
 
-  // Reset selectedIndex when search query changes
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [searchQuery]);
-
-  // Bound selectedIndex when filteredCommands changes
-  useEffect(() => {
-    if (selectedIndex >= filteredCommands.length && filteredCommands.length > 0) {
-      setSelectedIndex(filteredCommands.length - 1);
-    }
-  }, [filteredCommands.length, selectedIndex]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -61,7 +49,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         setSelectedIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length);
       } else if (e.key === 'Enter' && filteredCommands[selectedIndex]) {
         e.preventDefault();
-        onNavigate(filteredCommands[selectedIndex].id);
+        onNavigate(filteredCommands[selectedIndex].id as any);
         onClose();
       }
     };
@@ -93,14 +81,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <button
               key={cmd.id}
               onClick={() => {
-                onNavigate(cmd.id);
+                onNavigate(cmd.id as any);
                 onClose();
               }}
-              className={`w-full text-left px-3 py-2 font-mono transition-fast ${
-                index === selectedIndex
+              className={`w-full text-left px-3 py-2 font-mono transition-fast cursor-pointer ${index === selectedIndex
                   ? 'bg-ink text-white'
                   : 'hover:bg-gray-100'
-              }`}
+                }`}
             >
               {cmd.label}
             </button>

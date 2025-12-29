@@ -76,7 +76,6 @@ const App: React.FC = () => {
                 centerContent={
                   currentView === 'workspace' ? (
                     <div className="flex gap-2">
-                      {/* Category tabs - to be implemented */}
                     </div>
                   ) : null
                 }

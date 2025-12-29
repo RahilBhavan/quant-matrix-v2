@@ -50,7 +50,7 @@ export const WalletButton: React.FC = () => {
     return (
       <button
         onClick={handleConnect}
-        className="px-4 py-2 border border-ink text-ink font-mono text-small uppercase hover:bg-ink hover:text-white transition-fast"
+        className="px-4 py-2 border border-ink text-ink font-mono text-small uppercase hover:bg-ink hover:text-white transition-fast cursor-pointer"
       >
         [ DISCONNECTED ]
       </button>
@@ -60,12 +60,12 @@ export const WalletButton: React.FC = () => {
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
-        <div className={`w-2 h-2 ${network === 'SEPOLIA' ? 'bg-success' : 'bg-error'}`} />
+        <div className={`w-2 h-2 rounded-none ${network === 'SEPOLIA' ? 'bg-success' : 'bg-error'}`} />
         <DataText className="text-small">{network}</DataText>
       </div>
       <button
         onClick={handleDisconnect}
-        className="px-4 py-2 bg-ink text-white font-mono text-small hover:bg-orange transition-fast"
+        className="px-4 py-2 bg-ink text-white font-mono text-small hover:bg-orange transition-fast cursor-pointer"
       >
         [ {address?.slice(0, 6)}...{address?.slice(-4)} | {balance} ETH ]
       </button>
