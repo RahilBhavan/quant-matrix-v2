@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from '../ui';
+import { Typography } from '../ui/Typography';
 import { WalletButton } from './WalletButton';
 
 interface HeaderProps {

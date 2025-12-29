@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { walletService } from '../../services/web3/walletService';
-import { DataText } from '../ui';
+import { DataText } from '../ui/Typography';
 
 export const WalletButton: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);

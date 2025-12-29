@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Spine } from './Spine';
 import { BlockPalette } from './workspace/BlockPalette';
+import { BlockConfigModal } from './workspace/BlockConfigModal';
 import { CameraControls } from './CameraControls';
 import { StrategyMiniMap } from './StrategyMiniMap';
 import { BlockToolbar } from './BlockToolbar';
@@ -15,7 +16,7 @@ const StrategyLibrary = lazy(() => import('./StrategyLibrary').then(m => ({ defa
 const PriceChartPanel = lazy(() => import('./panels/PriceChartPanel').then(m => ({ default: m.PriceChartPanel })));
 const PortfolioPanel = lazy(() => import('./panels/PortfolioPanel').then(m => ({ default: m.PortfolioPanel })));
 import { AVAILABLE_BLOCKS } from '../constants';
-import { LegoBlock, MatrixStatus, ExecutionContext, ValidationResult, Protocol } from '../types';
+import { LegoBlock, MatrixStatus, ExecutionContext, ValidationResult, Protocol, BlockParams } from '../types';
 import { auditStrategy } from '../geminiService';
 import { usePortfolio } from '../context/PortfolioContext';
 import { validateStrategy } from '../services/strategyValidator';
@@ -47,6 +48,13 @@ export const Workspace: React.FC<WorkspaceProps> = ({ activeCategory = null }) =
     () => blocks.find(b => b.id === selectedBlockId) || null,
     [blocks, selectedBlockId]
   );
+
+  // Editing block object
+  const editingBlock = useMemo(
+    () => blocks.find(b => b.id === editingBlockId) || null,
+    [blocks, editingBlockId]
+  );
+
 
   // Block positions for camera focus (simplified 2D layout)
   const blockPositions = useMemo(() => {
@@ -109,6 +117,16 @@ export const Workspace: React.FC<WorkspaceProps> = ({ activeCategory = null }) =
   const handleBlockSelect = useCallback((blockId: string) => {
     setSelectedBlockId(prev => prev === blockId ? null : blockId);
   }, []);
+
+  // Handle block update
+  const handleUpdateBlock = useCallback((blockId: string, params: BlockParams) => {
+    setBlocks(prev => prev.map(b => 
+      b.id === blockId ? { ...b, params: { ...b.params, ...params } } : b
+    ));
+    // Re-validate
+    const result = validateStrategy(blocks);
+    setValidationResult(result);
+  }, [blocks]);
 
   const handleAudit = async () => {
     if (blocks.length === 0) return;
@@ -365,7 +383,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ activeCategory = null }) =
       <BlockPalette
         activeCategory={activeCategory}
         onAddBlock={handleAddBlock}
-        onDragStart={() => { }} // Placeholder for now
+        onDragStart={() => { /* Placeholder for now */ }}
       />
 
       {/* AI Strategy Prompt */}
@@ -414,6 +432,14 @@ export const Workspace: React.FC<WorkspaceProps> = ({ activeCategory = null }) =
           />
         )}
       </Suspense>
+
+      {/* Block Configuration Modal */}
+      <BlockConfigModal
+        isOpen={!!editingBlockId}
+        onClose={() => setEditingBlockId(null)}
+        block={editingBlock}
+        onUpdate={handleUpdateBlock}
+      />
     </div >
   );
 };

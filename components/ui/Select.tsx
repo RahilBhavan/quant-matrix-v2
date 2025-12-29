@@ -1,24 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Typography } from './Typography';
 
-interface Option {
+interface SelectOption {
   value: string;
   label: string;
 }
 
 interface SelectProps {
   value: string;
-  options: Option[];
   onChange: (value: string) => void;
-  label?: string;
+  options: SelectOption[];
+  placeholder?: string;
+  error?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 
 export const Select: React.FC<SelectProps> = ({
   value,
-  options,
   onChange,
-  label,
+  options,
+  placeholder = 'Select...',
+  error = false,
+  disabled = false,
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,9 +29,10 @@ export const Select: React.FC<SelectProps> = ({
 
   const selectedOption = options.find((opt) => opt.value === value);
 
+  // Close on click outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -37,39 +41,58 @@ export const Select: React.FC<SelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  return (
-    <div className={`relative ${className}`} ref={containerRef}>
-      {label && (
-        <Typography variant="small" className="uppercase text-xs font-bold text-gray-500 mb-1 block">
-          {label}
-        </Typography>
-      )}
-      
-      <div
-        className={`border ${isOpen ? 'border-ink border-2' : 'border-border'} bg-white px-3 py-2 cursor-pointer flex items-center justify-between transition-fast h-[40px]`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <Typography variant="data" className="truncate">
-          {selectedOption ? selectedOption.label : value}
-        </Typography>
-        <span className="font-mono text-xs">▼</span>
-      </div>
+  // Close on escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
 
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-ink z-50 max-h-[200px] overflow-y-auto">
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  const borderClass = error
+    ? 'border-2 border-error'
+    : isOpen
+      ? 'border-2 border-ink'
+      : 'border border-border';
+
+  return (
+    <div ref={containerRef} className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
+        className={`w-full h-[44px] px-3 flex items-center justify-between bg-white font-mono text-sm ${borderClass} ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'cursor-pointer'
+          }`}
+      >
+        <span className={selectedOption ? 'text-ink' : 'text-gray-400'}>
+          {selectedOption?.label || placeholder}
+        </span>
+        <span className="text-ink">▼</span>
+      </button>
+
+      {isOpen && !disabled && (
+        <div className="absolute top-full left-0 right-0 z-50 bg-white border-2 border-ink border-t-0 max-h-[200px] overflow-y-auto">
           {options.map((option) => (
-            <div
+            <button
               key={option.value}
-              className={`px-3 py-2 cursor-pointer hover:bg-ink hover:text-white transition-fast font-mono text-sm ${
-                option.value === value ? 'bg-gray-100' : ''
-              }`}
+              type="button"
               onClick={() => {
                 onChange(option.value);
                 setIsOpen(false);
               }}
+              className={`w-full px-3 py-2 text-left font-mono text-sm transition-colors ${option.value === value
+                  ? 'bg-ink text-white'
+                  : 'hover:bg-ink hover:text-white'
+                }`}
             >
               {option.label}
-            </div>
+            </button>
           ))}
         </div>
       )}

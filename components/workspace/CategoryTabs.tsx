@@ -1,6 +1,6 @@
 import React from 'react';
 import { Protocol } from '../../types';
-import { Typography } from '../ui';
+import { Typography } from '../ui/Typography';
 
 interface CategoryTabsProps {
   activeCategory: Protocol | null;
@@ -10,7 +10,7 @@ interface CategoryTabsProps {
 const CATEGORIES = [
   { id: Protocol.UNISWAP, label: 'TRADING', color: '#FF007A' },
   { id: Protocol.AAVE, label: 'LENDING', color: '#B6509E' },
-  { id: Protocol.COMPOUND, label: 'LIQUIDITY', color: '#00D395' }, // Using Compound/Green for Liquidity temporarily as per design
+  { id: Protocol.COMPOUND, label: 'LIQUIDITY', color: '#00D395' },
   { id: Protocol.LOGIC, label: 'LOGIC', color: '#FFD93D' },
   { id: Protocol.RISK, label: 'RISK', color: '#6C63FF' },
 ];
@@ -27,7 +27,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
           <button
             key={category.id}
             onClick={() => onSelectCategory(category.id)}
-            className={`h-full relative px-2 transition-fast flex items-center group`}
+            className="h-full relative px-2 transition-all duration-100 flex items-center group cursor-pointer"
           >
             <Typography
               variant="small"
@@ -38,7 +38,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
               {category.label}
             </Typography>
             
-            {/* Active Border */}
             {isActive && (
               <div
                 className="absolute bottom-0 left-0 right-0 h-[2px]"

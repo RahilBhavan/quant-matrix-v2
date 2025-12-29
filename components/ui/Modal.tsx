@@ -1,89 +1,86 @@
-import React, { useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useCallback } from 'react';
 import { Typography } from './Typography';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  headerColor?: string;
   children: React.ReactNode;
-  width?: string;
+  protocolColor?: string;
+  maxWidth?: string;
+  footer?: React.ReactNode;
 }
 
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
-  headerColor = '#0A0A0A',
   children,
-  width = '600px',
+  protocolColor = '#0A0A0A',
+  maxWidth = '600px',
+  footer,
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null);
+  // Handle escape key
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    },
+    [onClose]
+  );
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-
     if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
     }
-
     return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, handleKeyDown]);
+
+  if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
-            className="absolute inset-0 bg-canvas/95 backdrop-blur-sm"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(250, 250, 248, 0.95)' }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white border-2 border-ink relative"
+        style={{ maxWidth, width: '90%' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="h-[50px] px-6 flex items-center justify-between"
+          style={{ backgroundColor: protocolColor }}
+        >
+          <Typography variant="h3" className="text-white uppercase font-bold">
+            {title}
+          </Typography>
+          <button
             onClick={onClose}
-          />
-
-          {/* Modal Window */}
-          <motion.div
-            ref={modalRef}
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            transition={{ duration: 0.1, ease: 'linear' }}
-            className="relative bg-white border-2 border-ink w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-            style={{ maxWidth: width }}
+            className="text-white font-mono text-lg hover:opacity-70 transition-opacity"
+            aria-label="Close modal"
           >
-            {/* Header */}
-            <div
-              className="h-[50px] px-6 flex items-center justify-between"
-              style={{ backgroundColor: headerColor }}
-            >
-              <Typography variant="h3" className="text-white uppercase font-bold tracking-wider">
-                {title}
-              </Typography>
-              <button
-                onClick={onClose}
-                className="text-white hover:text-white/80 font-mono text-lg transition-fast"
-              >
-                [×]
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-              {children}
-            </div>
-          </motion.div>
+            [×]
+          </button>
         </div>
-      )}
-    </AnimatePresence>
+
+        {/* Body */}
+        <div className="p-6">{children}</div>
+
+        {/* Footer (optional) */}
+        {footer && (
+          <div className="px-6 pb-6 pt-0 border-t border-border">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };

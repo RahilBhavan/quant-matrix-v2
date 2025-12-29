@@ -1,7 +1,7 @@
 import React from 'react';
 import { Protocol } from '../../types';
 import { AVAILABLE_BLOCKS, BLOCK_METADATA } from '../../constants';
-import { Typography } from '../ui';
+import { Typography } from '../ui/Typography';
 
 interface BlockPaletteProps {
   activeCategory: Protocol | null;

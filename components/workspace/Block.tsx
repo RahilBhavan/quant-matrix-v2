@@ -1,10 +1,10 @@
 import React from 'react';
-import { DeFiBlock, Protocol } from '../../types';
-import { Typography, DataText } from '../ui';
+import { LegoBlock, Protocol } from '../../types';
+import { Typography, DataText } from '../ui/Typography';
 import { BlockSocket } from './BlockSocket';
 
 interface BlockComponentProps {
-  block: DeFiBlock;
+  block: LegoBlock;
   isSelected?: boolean;
   isError?: boolean;
   isExecuting?: boolean;
@@ -12,10 +12,12 @@ interface BlockComponentProps {
   onDoubleClick?: () => void;
 }
 
-const PROTOCOL_COLORS: Record<Protocol, string> = {
-  'Uniswap': '#FF007A',
-  'Aave': '#B6509E',
-  'Compound': '#00D395',
+const PROTOCOL_COLORS: Record<string, string> = {
+  [Protocol.UNISWAP]: '#FF007A',
+  [Protocol.AAVE]: '#B6509E',
+  [Protocol.COMPOUND]: '#00D395',
+  [Protocol.LOGIC]: '#FFD93D',
+  [Protocol.RISK]: '#6C63FF',
 };
 
 const BLOCK_ICONS: Record<string, string> = {

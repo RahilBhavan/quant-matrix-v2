@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Typography } from '../ui';
+import { Typography } from '../ui/Typography';
 
 interface CommandPaletteProps {
   isOpen: boolean;
