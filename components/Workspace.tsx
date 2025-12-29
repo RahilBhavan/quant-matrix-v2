@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, lazy, Suspense, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HUD } from './HUD';
 import { Spine } from './Spine';
 import { ActionRibbon } from './ActionRibbon';
 import { CameraControls } from './CameraControls';
@@ -210,16 +209,6 @@ export const Workspace: React.FC = () => {
 
       {/* Screen Reader Accessibility: Hidden semantic list */}
       <AriaStrategyList blocks={blocks} selectedBlockId={selectedBlockId} />
-
-      {/* Memoized HUD */}
-      <HUD
-        status={status}
-        marketData={MOCK_MARKET_DATA}
-        onOpenBacktest={() => setShowBacktestPanel(true)}
-        onOpenLibrary={() => setShowStrategyLibrary(true)}
-        onOpenPriceChart={() => setShowPriceChart(true)}
-        onOpenPortfolio={() => setShowPortfolioPanel(true)}
-      />
 
       {/* Strategy Mini-Map */}
       <StrategyMiniMap
