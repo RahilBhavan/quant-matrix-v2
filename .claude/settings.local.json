@@ -21,7 +21,13 @@
       "Bash(git pull:*)",
       "Bash(git merge:*)",
       "Bash(git branch:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git merge-base:*)",
+      "Bash(cd /Users/rahilbhavan/quant-matrix v2)",
+      "Bash(git checkout:*)",
+      "Bash(git push)",
+      "Bash(cd:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

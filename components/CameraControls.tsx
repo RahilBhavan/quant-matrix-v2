@@ -47,6 +47,7 @@ const CAMERA_PRESETS = {
 type PresetKey = keyof typeof CAMERA_PRESETS;
 
 export const CameraControls: React.FC<CameraControlsProps> = ({
+    selectedBlockId,
     onFocusBlock,
     blockPositions,
     zoomLevel,
